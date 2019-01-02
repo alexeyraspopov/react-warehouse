@@ -31,4 +31,18 @@ provider as a root of cache. It provides additional flexibility since you can
 manage cache's lifecycle by managing the tree (i.e. cache is cleared once the
 user leaves the page).
 
+## API
+
+    createResource(asyncLoadingFunction)
+
+Creates an instance that handles resource's cache.
+
+    Resource.read(resourceKey)
+
+Reads from resource's cache or calls the fetch function.
+
+    Resource.preload(resourceKey)
+
+Calls the fetch function on the background if no cache available.
+
 [write-rfc]: https://github.com/acdlite/rfcs/blob/context-write/text/0000-context-write.md
