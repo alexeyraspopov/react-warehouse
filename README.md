@@ -5,6 +5,9 @@
 An _experimental_ implementation of data cache and resource loaders that works
 with React Suspense.
 
+At the moment, the implementation only works with `react@16.7.0-alpha.2` which
+supports hooks.
+
 ## Motivation
 
 While `react-cache` is in development, I'd like to experiment with the ability
