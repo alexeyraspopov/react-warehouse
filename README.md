@@ -5,8 +5,7 @@
 An _experimental_ implementation of data cache and resource loaders that works
 with React Suspense.
 
-At the moment, the implementation only works with `react@16.7.0-alpha.2` which
-supports hooks.
+The implementation is based on [React Hooks](https://reactjs.org/docs/hooks-intro.html).
 
 ## Motivation
 
@@ -71,16 +70,12 @@ required side effects such as HTTP requests or cache invalidation.
 
 ## API
 
-    createResource(asyncLoadingFunction)
+    let Resource = createResource(options)
 
 Creates an instance that handles resource's cache.
 
-    Resource.read(resourceKey)
+    let entity = useDocument(resource, key, loader)
 
 Reads from resource's cache or calls the fetch function.
-
-    Resource.preload(resourceKey)
-
-Calls the fetch function on the background if no cache available.
 
 [write-rfc]: https://github.com/acdlite/rfcs/blob/context-write/text/0000-context-write.md
