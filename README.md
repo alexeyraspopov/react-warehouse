@@ -82,21 +82,21 @@ allows to keep some immutable data in cache for longer time.
 
 What the API can do:
 
- * **Basic one-time data fetching**
+ * **Basic one-time data fetching**  
    The API covers a small amount of data handling cases, but these cases are
    the most frequent in modern web app development.
- * **Reduced screen flickering**.
+ * **Reduced screen flickering**  
    Age control strategy makes sure the data is not re-fetched any time you need
    to render it. Leaving the page and going back to it quickly may show
    previously fetched data if it's not too old.
 
 What the API _cannot do_:
 
- * **Server-side rendering**
+ * **Server-side rendering**  
    Suspense is not yet supported in SSR. After `react-dom` starts support the
    feature, some additional changes may be required to make the solution work
    properly.
- * **Manual cache invalidation**
+ * **Manual cache invalidation**  
    I'm trying to figure the semantics. In order to keep the solution small and
    focused, I'm looking for a proper level of abstraction that needs to be
    implemented.
