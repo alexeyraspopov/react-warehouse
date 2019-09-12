@@ -1,68 +1,88 @@
-import { useEffect } from 'react';
+import { createContext, useContext, useEffect, useDebugValue } from 'react';
 
-export function createResource(load, maxAge = 3000) {
+let Pending = 0;
+let Resolved = 1;
+let Rejected = 2;
+
+let Registry = createContext(new Map());
+
+export function createResource(load, maxAge = 10000) {
+  let resource = { load, maxAge };
+  return resource;
+}
+
+export function useResourceQuery(resource, key) {
+  let cache = useRecordCache(resource);
+  let record = lookupRecord(resource, cache, key);
+  let value = unwrapRecordValue(record);
+  useRecordLock(record);
+  useDebugValue(value);
+  return value;
+}
+
+export function useResourcePreload(resource, key) {
+  let cache = useRecordCache(resource);
+  let record = lookupRecord(resource, cache, key);
+  useRecordLock(record);
+  useDebugValue(record);
+}
+
+function useRecordCache(resource) {
+  let registry = useContext(Registry);
+  if (registry.has(resource)) {
+    return registry.get(resource);
+  }
   let cache = new Map();
-  let refs = new Map();
-  let timestamps = new Map();
+  registry.set(resource, cache);
+  return cache;
+}
 
-  function isStale(key) {
-    return refs.get(key) < 1 && Date.now() - timestamps.get(key) > maxAge;
+function useRecordLock(record) {
+  useEffect(() => {
+    record.refs++;
+    return () => {
+      record.refs--;
+    };
+  }, [record]);
+}
+
+function lookupRecord(resource, cache, key) {
+  let record = cache.has(key) ? cache.get(key) : null;
+  if (!record || isRecordStale(resource, record)) {
+    let newRecord = createRecord(resource, key);
+    cache.set(key, newRecord);
+    return newRecord;
   }
+  return record;
+}
 
-  function useLock(key) {
-    useEffect(
-      () => {
-        let value = refs.get(key) || 0;
-        refs.set(key, value + 1);
-        return () => {
-          let value = refs.get(key) || 0;
-          refs.set(key, value - 1);
-        };
-      },
-      [key]
-    );
+function unwrapRecordValue(record) {
+  switch (record.type) {
+    case Pending:
+    case Rejected:
+      throw record.value;
+    case Resolved:
+      return record.value;
   }
+}
 
-  function putValue(key, value, tokens) {
-    cache.set(key, value);
-    refs.set(key, tokens);
-    timestamps.set(key, Date.now());
-  }
+function createRecord(resource, key) {
+  let record = { type: Pending, value: null, refs: 0, updatedAt: 0 };
+  record.value = resource
+    .load(key)
+    .then(value => updateRecordValue(record, Resolved, value))
+    .catch(error => updateRecordValue(record, Rejected, error));
+  return record;
+}
 
-  function accessData(key, tokens) {
-    let promise = load(key)
-      .then(value => putValue(key, value, tokens))
-      .catch(error => putValue(key, error, tokens));
+function updateRecordValue(record, type, value) {
+  return Object.assign(record, { type, value, updatedAt: Date.now() });
+}
 
-    cache.set(key, promise);
-    return promise;
-  }
-
-  function extractData(key) {
-    let value = cache.get(key);
-
-    if (value instanceof Promise || value instanceof Error) {
-      throw value;
-    }
-
-    useLock(key);
-    return value;
-  }
-
-  function read(key) {
-    if (cache.has(key) && !isStale(key)) {
-      return extractData(key);
-    } else {
-      throw accessData(key, 0);
-    }
-  }
-
-  function preload(key) {
-    if (!cache.has(key) || isStale(key)) {
-      accessData(key, 1);
-    }
-    useLock(key);
-  }
-
-  return { read, preload };
+function isRecordStale(resource, record) {
+  return (
+    record.type !== Pending &&
+    record.refs < 1 &&
+    Date.now() - record.updatedAt > resource.maxAge
+  );
 }
