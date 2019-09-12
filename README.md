@@ -46,8 +46,6 @@ counting and max age control. It allows to avoid using the provider component.
 The combination is defined by a set of scenarios that should be supported
 without unnecessary overhead for the developer.
 
-<data is often inconsistent due to multi user apps>
-
 Cache invalidation is one of the hardest things in programming. What's even
 harder is to implement an abstraction that cover all possible cases in product
 development. This is why libraries can be too abstract and flexible but using
