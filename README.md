@@ -107,10 +107,8 @@ export let Pokemon = createResource({
 import React, { Suspense } from 'react';
 import { useQuery } from 'react-warehouse';
 import { Pokemon } from './PokemonResource';
-import { useParams } from 'some-router-implementation';
 
 export default function PokemonInfoSection() {
-  let { pokemonId } = useRouterParams();
   return (
     <article>
       <h2>Pokemon Profiles</h2>
