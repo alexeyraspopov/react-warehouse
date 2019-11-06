@@ -20,34 +20,34 @@ without sacrificing user experience.
 
 What the API can do:
 
-- **Basic co-located data fetching with Suspense**
+- **Basic co-located data fetching with Suspense**  
   The API covers the most common data fetching use cases, including pagination,
   search results, etc.
-- **Render-as-you-fetch approach**
+- **Render-as-you-fetch approach**  
   The API allows implementing the approach suggested by React team. See more
-  https://reactjs.org/docs/concurrent-mode-suspense.html#approach-3-render-as-you-fetch-using-suspense
-- **Request cancellation**
+  in corresponding [section of docs][render-as-you-fetch]
+- **Request cancellation**  
   When a cancel handler is available, the lib will attempt to use it whenever
   it's possible. Currently, Suspense has some limitations, but there are cases
   where redundant requests can be cancelled nevertheless.
 
 What the API _cannot do_ at the moment:
 
-- **Server-side rendering**
+- **Server-side rendering**  
   Suspense is not yet supported in SSR. After `react-dom` starts support
   the feature, some additional changes may (or may not) be required to make
   the solution work properly.
-- **Manual cache invalidation**
+- **Manual cache invalidation**  
   I'm trying to figure the semantics. In order to keep the solution small
   and focused, I'm looking for a proper level of abstraction that needs
   to be implemented.
 
 ## Implementation
 
-_This section describes logic behind the cache implementation. It is not
+_This section describes the logic behind the cache implementation. It is not
 mandatory. You can skip it and read [Usage Examples](#usage) and
 [API Reference](#api). This section is still in progress, while I'm trying to
-make explanation easier to read and understand._
+make the explanation easier to read and understand._
 
 Cache invalidation is one of the hardest things in programming. What's even
 harder is to implement an abstraction that cover all possible cases in product
@@ -329,3 +329,4 @@ or suspend the tree while data is still loading.
 [lru-cache]: https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)
 [ref-counting]: https://en.wikipedia.org/wiki/Reference_counting
 [concurrent-suspense]: https://reactjs.org/docs/concurrent-mode-suspense.html
+[render-as-you-fetch]: https://reactjs.org/docs/concurrent-mode-suspense.html#approach-3-render-as-you-fetch-using-suspense
