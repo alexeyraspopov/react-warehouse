@@ -1,9 +1,42 @@
 {
   "name": "react-warehouse",
-  "version": "0.0.0",
-  "description": "React data cache implementation",
+  "version": "0.1.0",
+  "description": "React resource loader implementation",
   "license": "MIT",
+  "main": "build/bundle.js",
+  "module": "build/module.js",
+  "files": [
+    "build/*"
+  ],
+  "scripts": {
+    "test": "jest --setupFilesAfterEnv ./jest.setup.js",
+    "build": "rollup --config ./rollup.config.js"
+  },
   "peerDependencies": {
-    "react": "16.7.0-alpha.2"
+    "react": "^16.9.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.0",
+    "@babel/preset-env": "^7.7.1",
+    "@babel/preset-react": "^7.7.0",
+    "babel-jest": "^24.9.0",
+    "jest": "^24.9.0",
+    "jest-react": "^0.9.0",
+    "prettier": "^1.18.2",
+    "react": "^16.9.0",
+    "react-test-renderer": "^16.11.0",
+    "rollup": "^1.26.3",
+    "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-bundle-size": "^1.0.3",
+    "rollup-plugin-multi-entry": "^2.1.0",
+    "scheduler": "^0.17.0"
+  },
+  "browserslist": [
+    "> 0.25%, not dead"
+  ],
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all"
   }
 }

@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useDebugValue } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useDebugValue,
+  useRef,
+} from 'react';
+import LRUCache from './LRUCache';
 
 let Pending = 0;
 let Resolved = 1;
@@ -6,25 +13,42 @@ let Rejected = 2;
 
 let Registry = createContext(new Map());
 
-export function createResource(load, maxAge = 10000) {
-  let resource = { load, maxAge };
+let ResourcePrototype = {
+  query: null,
+  getCacheKey: identity,
+  maxAge: 10000,
+  capacity: 512,
+};
+
+export function createResource(options) {
+  let resource = Object.assign({}, ResourcePrototype, options);
   return resource;
 }
 
-export function useResourceQuery(resource, key) {
+export function useQuery(resource, input) {
   let cache = useRecordCache(resource);
-  let record = lookupRecord(resource, cache, key);
+  let record = lookupRecord(resource, cache, input);
   let value = unwrapRecordValue(record);
   useRecordLock(record);
   useDebugValue(value);
   return value;
 }
 
-export function useResourcePreload(resource, key) {
+export function usePreloadedQuery(resource, input) {
   let cache = useRecordCache(resource);
-  let record = lookupRecord(resource, cache, key);
+  let record = lookupRecord(resource, cache, input);
+  let ref = useRef(record);
   useRecordLock(record);
   useDebugValue(record);
+  return ref;
+}
+
+export function useQueryRef(ref) {
+  let record = unwrapRecordReference(ref);
+  let value = unwrapRecordValue(record);
+  useRecordLock(record);
+  useDebugValue(value);
+  return value;
 }
 
 function useRecordCache(resource) {
@@ -32,7 +56,7 @@ function useRecordCache(resource) {
   if (registry.has(resource)) {
     return registry.get(resource);
   }
-  let cache = new Map();
+  let cache = LRUCache(resource.capacity, cleanupRecord);
   registry.set(resource, cache);
   return cache;
 }
@@ -46,32 +70,74 @@ function useRecordLock(record) {
   }, [record]);
 }
 
-function lookupRecord(resource, cache, key) {
+function lookupRecord(resource, cache, input) {
+  let key = createCacheKey(resource, input);
   let record = cache.has(key) ? cache.get(key) : null;
   if (!record || isRecordStale(resource, record)) {
-    let newRecord = createRecord(resource, key);
+    let newRecord = createRecord(resource, input);
     cache.set(key, newRecord);
     return newRecord;
   }
   return record;
 }
 
-function unwrapRecordValue(record) {
-  switch (record.type) {
-    case Pending:
-    case Rejected:
-      throw record.value;
-    case Resolved:
-      return record.value;
+function cleanupRecord(record) {
+  if (record.type === Pending && typeof record.cancel === 'function') {
+    record.cancel();
   }
 }
 
-function createRecord(resource, key) {
-  let record = { type: Pending, value: null, refs: 0, updatedAt: 0 };
-  record.value = resource
-    .load(key)
-    .then(value => updateRecordValue(record, Resolved, value))
-    .catch(error => updateRecordValue(record, Rejected, error));
+function createCacheKey(resource, input) {
+  let key = resource.getCacheKey.call(null, input);
+  if (typeof key !== 'string' && typeof key !== 'number') {
+    throw new Error('Resource key should be serialized');
+  }
+  return key;
+}
+
+function unwrapRecordValue(record) {
+  switch (record.type) {
+    case Pending:
+      let suspender = record.value;
+      throw suspender;
+    case Rejected:
+      let error = record.value;
+      throw error;
+    case Resolved:
+    default:
+      let result = record.value;
+      return result;
+  }
+}
+
+function unwrapRecordReference(ref) {
+  let record = ref.current;
+  if (!isRecord(record)) {
+    throw new Error('An incorrect reference was used');
+  }
+  return record;
+}
+
+function createRecord(resource, input) {
+  let record = {
+    type: Pending,
+    value: null,
+    refs: 0,
+    updatedAt: 0,
+    cancel: null,
+  };
+  let entity = resource.query.call(null, input);
+  if (Array.isArray(entity)) {
+    record.cancel = entity[1];
+    entity = entity[0];
+  }
+  if (entity && typeof entity.then === 'function') {
+    record.value = entity
+      .then(result => updateRecordValue(record, Resolved, result))
+      .catch(error => updateRecordValue(record, Rejected, error));
+  } else {
+    updateRecordValue(record, Resolved, entity);
+  }
   return record;
 }
 
@@ -85,4 +151,17 @@ function isRecordStale(resource, record) {
     record.refs < 1 &&
     Date.now() - record.updatedAt > resource.maxAge
   );
+}
+
+function isRecord(object) {
+  return (
+    object != null &&
+    (object.type === Pending ||
+      object.type === Resolved ||
+      object.type === Rejected)
+  );
+}
+
+function identity(value) {
+  return value;
 }
