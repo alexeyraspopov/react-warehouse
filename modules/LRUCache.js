@@ -16,11 +16,10 @@ export default function LRUCache(capacity, onDelete) {
       map.delete(key);
       map.set(key, value);
       if (map.size > capacity) {
-        let firstEntry = map.entries().next();
-        if (!firstEntry.done) {
-          let entry = firstEntry.value;
-          map.delete(entry[0]);
-          onDelete(entry[1]);
+        for(let [key, value] of map.entries()) {
+          map.delete(key);
+          onDelete(value);
+          break;
         }
       }
     },
