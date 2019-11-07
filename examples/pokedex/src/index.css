@@ -19,7 +19,9 @@ body {
 .pokemon-list {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
   background: #ffffff;
-  flex: 4;
+  flex-basis: 20%;
+  flex-grow: 2;
+  overflow: hidden;
 }
 .pokemon-list ul {
   list-style: none;
