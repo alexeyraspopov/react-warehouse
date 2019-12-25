@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useDebugValue,
-  useRef,
-} from 'react';
+import { createContext, useContext, useEffect, useDebugValue } from 'react';
 import LRUCache from './LRUCache';
 
 let Pending = 0;
@@ -37,14 +31,12 @@ export function useQuery(resource, input) {
 export function usePreloadedQuery(resource, input) {
   let cache = useRecordCache(resource);
   let record = lookupRecord(resource, cache, input);
-  let ref = useRef(record);
   useRecordLock(record);
   useDebugValue(record);
-  return ref;
+  return record;
 }
 
-export function useQueryRef(ref) {
-  let record = unwrapRecordReference(ref);
+export function useQueryRef(record) {
   let value = unwrapRecordValue(record);
   useRecordLock(record);
   useDebugValue(value);
@@ -108,14 +100,6 @@ function unwrapRecordValue(record) {
       let result = record.value;
       return result;
   }
-}
-
-function unwrapRecordReference(ref) {
-  let record = ref.current;
-  if (!isRecord(record)) {
-    throw new Error('An incorrect reference was used');
-  }
-  return record;
 }
 
 function createRecord(resource, input) {
