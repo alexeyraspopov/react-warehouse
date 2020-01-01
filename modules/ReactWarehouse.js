@@ -11,7 +11,7 @@ let ResourcePrototype = {
   query: null,
   getCacheKey: identity,
   maxAge: 10000,
-  capacity: 512,
+  capacity: 256,
 };
 
 export function createResource(options) {
