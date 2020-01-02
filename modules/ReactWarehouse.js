@@ -81,7 +81,7 @@ function cleanupRecord(record) {
 function createCacheKey(resource, deps) {
   return deps.length > 0
     ? deps.map(item => hashCode(item)).join('/')
-    : hashCode(null);
+    : hashCode(resource);
 }
 
 function unwrapRecordValue(record) {
