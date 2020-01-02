@@ -280,17 +280,6 @@ When they click through pages quickly, we don't need to process all requests,
 so clicking 6 times on "next page" really fast, will produce 6 requests, but 3
 of them will be cancelled based on capacity.
 
-```javascript
-let ProjectsPages = createResource({
-  query({ offset, limit }) { ... }
-  // Since the input is not string or number, we need to serialize it.
-  // This example uses https://www.npmjs.com/package/query-string
-  // to convert { offset: 0, limit: 10 } to "?offset=0&limit=10".
-  getCacheKey(input) { return qs.stringify(input); }
-  capacity: 3,
-})
-```
-
 ## API Reference
 
 ### `createResource(options)`
@@ -300,9 +289,6 @@ Returns `Resource` instance that will be consumed by following hooks.
 
 - `options.query` — function that does the job. Must return a payload, or
   promise of payload, or tuple `[Promise, cancelHandler]`. See usage examples.
-- `options.getCacheKey` _(optional)_ — function that receives the same input
-  as `query()` and must return a unique string or number that is used as the
-  cache key. Default is identity function `value => value`.
 - `options.maxAge` _(optional)_ — Max resource age in milliseconds. Default is `10000`.
 - `options.capacity` _(optional)_ — Max cache size allowed. Default is `512`.
 
@@ -313,7 +299,7 @@ stale (based on `maxAge` and reference count). If two components are querying
 the same record, they suspend the same promise.
 
 - `resource` — specific resource instance created earlier.
-- `input` — an arbitrary input that resource's `query()` and `getCacheKey()` receive.
+- `input` — an arbitrary input that resource's `query()`.
 
 ### `usePreloadedQuery(Resource, input)`
 
@@ -321,7 +307,7 @@ Invokes `query(input)` without suspending the tree if no data is cached and
 returns a reference object that can be used in subtree.
 
 - `resource` — specific resource instance created earlier.
-- `input` — an arbitrary input that resource's `query()` and `getCacheKey()` receive.
+- `input` — an arbitrary input that resource's `query()`.
 
 ### `useQueryRef(ref)`
 
