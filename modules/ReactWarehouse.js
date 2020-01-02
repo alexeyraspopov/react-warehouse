@@ -38,7 +38,6 @@ export function usePreloadedQuery(resource, input) {
 
 export function useQueryRef(record) {
   let value = unwrapRecordValue(record);
-  useRecordLock(record);
   useDebugValue(value);
   return value;
 }
