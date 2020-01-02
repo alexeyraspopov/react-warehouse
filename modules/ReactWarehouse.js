@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useDebugValue } from 'react';
 import LRUCache from './LRUCache';
+import hashCode from './hashCode';
 
 let Pending = 0;
 let Resolved = 1;
@@ -9,7 +10,6 @@ let Registry = createContext(new Map());
 
 let ResourcePrototype = {
   query: null,
-  getCacheKey: identity,
   maxAge: 10000,
   capacity: 256,
 };
@@ -63,7 +63,7 @@ function useRecordLock(record) {
 }
 
 function lookupRecord(resource, cache, input) {
-  let key = createCacheKey(resource, input);
+  let key = createCacheKey(resource, [input]);
   let record = cache.has(key) ? cache.get(key) : null;
   if (!record || isRecordStale(resource, record)) {
     let newRecord = createRecord(resource, input);
@@ -79,12 +79,10 @@ function cleanupRecord(record) {
   }
 }
 
-function createCacheKey(resource, input) {
-  let key = resource.getCacheKey.call(null, input);
-  if (typeof key !== 'string' && typeof key !== 'number') {
-    throw new Error('Resource key should be serialized');
-  }
-  return key;
+function createCacheKey(resource, deps) {
+  return deps.length > 0
+    ? deps.map(item => hashCode(item)).join('/')
+    : hashCode(null);
 }
 
 function unwrapRecordValue(record) {

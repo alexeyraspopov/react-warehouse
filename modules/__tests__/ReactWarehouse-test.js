@@ -42,21 +42,6 @@ test('async data rendering with fallback', async () => {
   expect(renderer).toMatchRenderedOutput(<span>test:a</span>);
 });
 
-test('computed cache key', () => {
-  let query = jest.fn(input => 'test:' + input.symbol);
-  let cacheKey = jest.fn(input => input.id);
-  let Resource = createResource({ query, getCacheKey: cacheKey });
-  let input = { id: 'a', symbol: 'abc' };
-  function Component({ input }) {
-    let string = useQuery(Resource, input);
-    return <span>{string}</span>;
-  }
-  let renderer = create(<Component input={input} />);
-  expect(query).toHaveBeenCalledWith(input);
-  expect(cacheKey).toHaveBeenCalledWith(input);
-  expect(renderer).toMatchRenderedOutput(<span>test:abc</span>);
-});
-
 test('error boundary fallback', async () => {
   let query = jest.fn(key => Promise.reject('rejected:' + key));
   let Resource = createResource({ query });
