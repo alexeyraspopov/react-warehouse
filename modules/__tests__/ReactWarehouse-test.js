@@ -129,6 +129,7 @@ test('stale data reload', async () => {
     </Suspense>,
     { unstable_isConcurrent: true },
   );
+  jest.useFakeTimers();
   expect(Scheduler).toFlushWithoutYielding();
   expect(renderer).toMatchRenderedOutput(<span>loading</span>);
   await expect(Promise).toFlushPendingCallbacks();
@@ -136,7 +137,7 @@ test('stale data reload', async () => {
   expect(renderer).toMatchRenderedOutput(<span>test:a</span>);
   renderer.update(<span>boom</span>);
   expect(Scheduler).toFlushWithoutYielding();
-  await new Promise(r => setTimeout(r, 10));
+  jest.advanceTimersByTime(1000);
   renderer.update(
     <Suspense fallback={<span>loading</span>}>
       <Component id="a" />
