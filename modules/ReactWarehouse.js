@@ -133,19 +133,6 @@ function isRecordStale(resource, record) {
   );
 }
 
-function isRecord(object) {
-  return (
-    object != null &&
-    (object.type === Pending ||
-      object.type === Resolved ||
-      object.type === Rejected)
-  );
-}
-
-function identity(value) {
-  return value;
-}
-
 function empty() {
   return null;
 }
