@@ -107,17 +107,16 @@ function createRecord(resource, input) {
     updatedAt: 0,
     cancel: null,
   };
-  let entity = resource.query.call(null, input);
-  if (Array.isArray(entity)) {
-    record.cancel = entity[1];
-    entity = entity[0];
-  }
-  if (entity && typeof entity.then === 'function') {
-    record.value = entity
+  let result = resource.query.call(null, input);
+  let entity = Array.isArray(result) ? result : [result, empty];
+  let value = entity[0];
+  record.cancel = entity[1];
+  if (value && typeof value.then === 'function') {
+    record.value = value
       .then(result => updateRecordValue(record, Resolved, result))
       .catch(error => updateRecordValue(record, Rejected, error));
   } else {
-    updateRecordValue(record, Resolved, entity);
+    updateRecordValue(record, Resolved, value);
   }
   return record;
 }
@@ -145,4 +144,8 @@ function isRecord(object) {
 
 function identity(value) {
   return value;
+}
+
+function empty() {
+  return null;
 }
