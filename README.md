@@ -44,9 +44,6 @@ What the API _cannot do_ at the moment:
 
 Things on the roadmap:
 
-- **Refetchable queries**  
-  This should help with dynamic components that suppose to suspend on initial
-  load but can avoid it on user interactions.
 - **Controlled mutations**  
   There has to be a piece of API that allows a way to perform async mutation
   along with updating the cache.
