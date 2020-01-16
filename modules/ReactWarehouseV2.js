@@ -1,7 +1,7 @@
-export function createResource() {}
+export function createResource(options) {}
 
-export function useResource() {}
+export function useResource(Resource, deps) {}
 
-export function useResourceFactory() {}
+export function useResourceFactory(factory, deps) {}
 
-export function useResourceValue() {}
+export function useResourceValue(resource) {}
