@@ -3,10 +3,8 @@ import * as Scheduler from 'scheduler';
 import { create, act } from 'react-test-renderer';
 import { useResourceFactory, useResourceValue } from '../ReactWarehouseV2';
 
-function Parent({ id, query, cancel }) {
-  let resource = useResourceFactory(() => {
-    return cancel ? [query(id), cancel] : query(id);
-  }, [id, query, cancel]);
+function Parent({ factory, data }) {
+  let resource = useResourceFactory(() => factory(data), [factory, data]);
   return (
     <ErrorBoundary fallback={<span>failure</span>}>
       <Suspense fallback={<span>loading…</span>}>
@@ -40,7 +38,7 @@ class ErrorBoundary extends React.Component {
 
 test('sync rendering of resolved resource', () => {
   let query = jest.fn(data => 'result:' + data);
-  let renderer = create(<Parent id="a" query={query} />);
+  let renderer = create(<Parent factory={query} data="a" />);
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
 });
@@ -49,7 +47,7 @@ test('async rendering of pending resource', async () => {
   let query = jest.fn(data => Promise.resolve('result:' + data));
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
-    renderer.update(<Parent id="a" query={query} />);
+    renderer.update(<Parent factory={query} data="a" />);
   });
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('a');
@@ -65,7 +63,7 @@ test('async rendering of rejected resource', async () => {
   let renderer = create(null, { unstable_isConcurrent: true });
   jest.spyOn(console, 'error').mockImplementation(() => null);
   act(() => {
-    renderer.update(<Parent id="a" query={query} />);
+    renderer.update(<Parent factory={query} data="a" />);
   });
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('a');
@@ -77,17 +75,17 @@ test('async rendering of rejected resource', async () => {
 });
 
 test('query cancellation of pending resource', async () => {
-  let query = jest.fn(data => Promise.resolve('result:' + data));
   let cancel = jest.fn();
+  let query = jest.fn(data => [Promise.resolve('result:' + data), cancel]);
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
-    renderer.update(<Parent id="a" query={query} cancel={cancel} />);
+    renderer.update(<Parent factory={query} data="a" />);
   });
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
   act(() => {
-    renderer.update(<Parent id="b" query={query} cancel={cancel} />);
+    renderer.update(<Parent factory={query} data="b" />);
   });
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('b');
@@ -99,11 +97,11 @@ test('query cancellation of pending resource', async () => {
 });
 
 test('subsequent re-rendering of new pending resource', async () => {
-  let query = jest.fn(data => Promise.resolve('result:' + data));
   let cancel = jest.fn();
+  let query = jest.fn(data => [Promise.resolve('result:' + data), cancel]);
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
-    renderer.update(<Parent id="a" query={query} cancel={cancel} />);
+    renderer.update(<Parent factory={query} data="a" />);
   });
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('a');
@@ -112,7 +110,7 @@ test('subsequent re-rendering of new pending resource', async () => {
   expect(Scheduler).toFlushWithoutYielding();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
   act(() => {
-    renderer.update(<Parent id="b" query={query} cancel={cancel} />);
+    renderer.update(<Parent factory={query} data="b" />);
   });
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('b');
