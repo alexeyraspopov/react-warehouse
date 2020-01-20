@@ -1,12 +1,35 @@
-import { useDebugValue, useEffect, useMemo } from 'react';
+import {
+  createContext,
+  useContext,
+  useDebugValue,
+  useEffect,
+  useMemo,
+} from 'react';
+import LRUCache from './LRUCache';
+import hashCode from './hashCode';
 
 let Pending = 0;
 let Resolved = 1;
 let Rejected = 2;
 
-export function createResource(options) {}
+let Registry = createContext(new Map());
 
-export function useResource(Resource, deps) {}
+let ResourcePrototype = {
+  query: null,
+  maxAge: 10000,
+  capacity: 256,
+};
+
+export function createResource(options) {
+  return Object.assign({}, ResourcePrototype, options);
+}
+
+export function useResource(Resource, deps) {
+  let resource = useResourceLookup(Resource, deps);
+  useResourceLock(resource);
+  useDebugValue(resource);
+  return resource;
+}
 
 export function useResourceFactory(query, deps) {
   let resource = useResourceMemo(query, deps);
@@ -19,6 +42,53 @@ export function useResourceValue(resource) {
   let value = unwrapResourceValue(resource);
   useDebugValue(value);
   return value;
+}
+
+function useResourceLookup(Resource, deps) {
+  let cache = useResourceCache(Resource);
+  let key = createCacheKey(Resource, deps);
+  let resource = cache.has(key) ? cache.get(key) : null;
+  if (resource == null || isResourceStale(Resource, resource)) {
+    let newResource = createResourceInstance();
+    let entity = getPendingEntity(Resource.query, deps);
+    updateResourceWithEntity(newResource, entity);
+    cache.set(key, newResource);
+    return newResource;
+  }
+  return resource;
+}
+
+function useResourceCache(Resource) {
+  let registry = useContext(Registry);
+  if (registry.has(Resource)) {
+    return registry.get(Resource);
+  }
+  let cache = LRUCache(Resource.capacity, cleanupResource);
+  registry.set(Resource, cache);
+  return cache;
+}
+
+function useResourceLock(resource) {
+  useEffect(() => {
+    resource.refs += 1;
+    return () => {
+      resource.refs -= 1;
+    };
+  }, [resource]);
+}
+
+function createCacheKey(Resource, deps) {
+  return deps.length > 0
+    ? deps.map(item => hashCode(item)).join('/')
+    : hashCode(Resource);
+}
+
+function isResourceStale(Resource, resource) {
+  return (
+    resource.type !== Pending &&
+    resource.refs < 1 &&
+    Date.now() - resource.updatedAt > Resource.maxAge
+  );
 }
 
 function useResourceMemo(query, deps) {
