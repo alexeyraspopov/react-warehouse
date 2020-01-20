@@ -5,7 +5,7 @@ import {
   createResource,
   useResource,
   useResourceValue,
-} from '../ReactWarehouseV2';
+} from '../ReactWarehouse';
 
 function Parent({ Resource, deps }) {
   let resource = useResource(Resource, deps);

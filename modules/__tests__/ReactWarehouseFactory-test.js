@@ -1,7 +1,7 @@
 import React, { Suspense, Fragment } from 'react';
 import * as Scheduler from 'scheduler';
 import { create, act } from 'react-test-renderer';
-import { useResourceFactory, useResourceValue } from '../ReactWarehouseV2';
+import { useResourceFactory, useResourceValue } from '../ReactWarehouse';
 
 function Parent({ factory, data }) {
   let resource = useResourceFactory(() => factory(data), [factory, data]);
