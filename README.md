@@ -288,9 +288,9 @@ This function can be treated as React's `createContext()` function.
 Returns `Resource` instance that will be consumed by following hooks.
 
 - `options.query` — function that does the job. Must return a payload, or
-  promise of payload, or tuple `[Promise, cancelHandler]`. See usage examples.
+  promise of payload, or tuple `[Promise, onCancel]`. See usage examples.
 - `options.maxAge` _(optional)_ — Max resource age in milliseconds. Default is `10000`.
-- `options.capacity` _(optional)_ — Max cache size allowed. Default is `512`.
+- `options.capacity` _(optional)_ — Max cache size allowed. Default is `256`.
 
 ### `useQuery(Resource, input)`
 
