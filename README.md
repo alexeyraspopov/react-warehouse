@@ -292,6 +292,20 @@ Returns `Resource` instance that will be consumed by following hooks.
 - `options.maxAge` _(optional)_ — Max resource age in milliseconds. Default is `10000`.
 - `options.capacity` _(optional)_ — Max cache size allowed. Default is `256`.
 
+### `useResource(Resource, [...deps])`
+
+Returns an instance of resource while preloading data using `query(...deps)`
+and caching the result with `Resource`s cache options.
+
+### `useResourceFactory(query, [...deps])`
+
+Returns an instance of resource while preloading data using `query(...deps)`
+and keeping the instance as a part of the calling component.
+
+### `useResourceValue(resource)`
+
+Unwraps resource instance's value and suspends if necessary.
+
 ### `useQuery(Resource, input)`
 
 Returns data from cache or suspends if no data available or existing record is
