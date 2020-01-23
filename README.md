@@ -306,30 +306,6 @@ and keeping the instance as a part of the calling component.
 
 Unwraps resource instance's value and suspends if necessary.
 
-### `useQuery(Resource, input)`
-
-Returns data from cache or suspends if no data available or existing record is
-stale (based on `maxAge` and reference count). If two components are querying
-the same record, they suspend the same promise.
-
-- `resource` — specific resource instance created earlier.
-- `input` — an arbitrary input that resource's `query()`.
-
-### `usePreloadedQuery(Resource, input)`
-
-Invokes `query(input)` without suspending the tree if no data is cached and
-returns a reference object that can be used in subtree.
-
-- `resource` — specific resource instance created earlier.
-- `input` — an arbitrary input that resource's `query()`.
-
-### `useQueryRef(ref)`
-
-Uses reference created by a parent component to either extract preloaded data
-or suspend the tree while data is still loading.
-
-- `ref` — a reference created by `usePreloadedQuery()`.
-
 [react-hooks]: https://reactjs.org/docs/hooks-intro.html
 [react-suspense]: https://reactjs.org/docs/concurrent-mode-suspense.html
 [lru-cache]: https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)
