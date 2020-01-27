@@ -4,6 +4,7 @@ import {
   useDebugValue,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import LRUCache from './LRUCache';
 import hashCode from './hashCode';
@@ -38,6 +39,14 @@ export function useResourceFactory(query, deps) {
   return resource;
 }
 
+export function useResourceFlow(Resource, deps) {
+  let resource = useResourceLookup(Resource, deps);
+  let state = useResourcePendingState(resource);
+  useResourceLock(state[0]);
+  useDebugValue(state);
+  return state;
+}
+
 export function useResourceValue(resource) {
   let value = unwrapResourceValue(resource);
   useDebugValue(value);
@@ -66,6 +75,25 @@ function useResourceCache(Resource) {
   let cache = LRUCache(Resource.capacity, cleanupResource);
   registry.set(Resource, cache);
   return cache;
+}
+
+function useResourcePendingState(resource) {
+  let [state, setState] = useState([resource, false]);
+  let current = state[0];
+  useEffect(() => {
+    if (current === resource) {
+      return noop;
+    } else if (resource.type === Pending) {
+      setState([current, true]);
+      return subscribe(resource.value, () => {
+        setState([resource, false]);
+      });
+    } else {
+      setState([resource, false]);
+      return noop;
+    }
+  }, [current, resource]);
+  return state;
 }
 
 function useResourceLock(resource) {
@@ -157,6 +185,15 @@ function updateResourceWithEntity(resource, [value, cancel]) {
 
 function updateResourceValue(resource, type, value) {
   return Object.assign(resource, { type, value, updatedAt: Date.now() });
+}
+
+function subscribe(suspender, callback) {
+  let open = true;
+  let emit = () => (open ? callback() : null);
+  suspender.then(emit, emit);
+  return () => {
+    open = false;
+  };
 }
 
 function noop() {}

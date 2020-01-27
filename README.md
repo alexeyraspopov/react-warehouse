@@ -302,6 +302,12 @@ and caching the result with `Resource`s cache options.
 Returns an instance of resource while preloading data using `query(...deps)`
 and keeping the instance as a part of the calling component.
 
+### `useResourceFlow(Resource, [...deps])`
+
+Returns a pair of `[resource, isPending]` where `resource` is the same as from
+`useResource()` and `isPending` is a boolean flag which turns `true` for any
+subsequent request after the first request is resolved.
+
 ### `useResourceValue(resource)`
 
 Unwraps resource instance's value and suspends if necessary.
