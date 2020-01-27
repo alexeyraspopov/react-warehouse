@@ -306,9 +306,15 @@ and keeping the instance as a part of the calling component.
 
 Unwraps resource instance's value and suspends if necessary.
 
+### `<ErrorBoundary fallback={...} onError={...} />`
+
+An optional implementation of [Error Boundary][error-boundary]. When not used,
+will be tree-shaked out of the bundle.
+
 [react-hooks]: https://reactjs.org/docs/hooks-intro.html
 [react-suspense]: https://reactjs.org/docs/concurrent-mode-suspense.html
 [lru-cache]: https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)
 [ref-counting]: https://en.wikipedia.org/wiki/Reference_counting
 [concurrent-suspense]: https://reactjs.org/docs/concurrent-mode-suspense.html
 [render-as-you-fetch]: https://reactjs.org/docs/concurrent-mode-suspense.html#approach-3-render-as-you-fetch-using-suspense
+[error-boundary]: https://reactjs.org/docs/error-boundaries.html

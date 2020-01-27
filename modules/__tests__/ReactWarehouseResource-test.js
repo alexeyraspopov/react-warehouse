@@ -6,6 +6,7 @@ import {
   useResource,
   useResourceValue,
 } from '../ReactWarehouse';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 function Parent({ Resource, deps }) {
   let resource = useResource(Resource, deps);
@@ -21,23 +22,6 @@ function Parent({ Resource, deps }) {
 function Child({ resource }) {
   let value = useResourceValue(resource);
   return <span>{value}</span>;
-}
-
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { error: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { error };
-  }
-
-  render() {
-    return this.state.error !== null
-      ? this.props.fallback
-      : this.props.children;
-  }
 }
 
 test('sync rendering of resolved resource', () => {

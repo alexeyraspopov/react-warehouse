@@ -2,6 +2,7 @@ import React, { Suspense, Fragment } from 'react';
 import * as Scheduler from 'scheduler';
 import { create, act } from 'react-test-renderer';
 import { useResourceFactory, useResourceValue } from '../ReactWarehouse';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 function Parent({ factory, data }) {
   let resource = useResourceFactory(() => factory(data), [factory, data]);
@@ -17,23 +18,6 @@ function Parent({ factory, data }) {
 function Child({ resource }) {
   let value = useResourceValue(resource);
   return <span>{value}</span>;
-}
-
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { error: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { error };
-  }
-
-  render() {
-    return this.state.error !== null
-      ? this.props.fallback
-      : this.props.children;
-  }
 }
 
 test('sync rendering of resolved resource', () => {
