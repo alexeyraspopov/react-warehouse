@@ -1,0 +1,40 @@
+// @flow
+opaque type ResourceCache<T, D> = Object;
+
+opaque type Resource<T> = Object;
+
+type PendingQueryResult<T> = T | Promise<T> | [Promise<T>, () => void];
+
+type QueryFunction<T, D> = (...deps: D) => PendingQueryResult<T>;
+
+type ResourceOptions<T, D> = {|
+  query: QueryFunction<T, D>,
+  maxAge?: number,
+  capacity?: number,
+|};
+
+declare export function createResource<T, D>(
+  options: ResourceOptions<T, D>,
+): ResourceCache<T, D>;
+
+declare export function useResource<T, D>(
+  Resource: ResourceCache<T, D>,
+  deps: D,
+): Resource<T>;
+
+declare export function useResourceFactory<T, D>(
+  query: QueryFunction<T, D>,
+  deps: D,
+): Resource<T>;
+
+declare export function useResourceFlow<T, D>(
+  Resource: ResourceCache<T, D>,
+  deps: D,
+): [Resource<T>, boolean];
+
+declare export function useResourceSync<T, D>(
+  Resource: ResourceCache<T, D>,
+  deps: D,
+): T;
+
+declare export function useResourceValue<T>(resource: Resource<T>): T;
