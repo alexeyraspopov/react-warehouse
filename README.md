@@ -312,6 +312,12 @@ subsequent request after the first request is resolved.
 
 Unwraps resource instance's value and suspends if necessary.
 
+### `useResourceSync(Resource, [...deps])`
+
+A composition of `useResource()` and `useResourceValue()` that allows suspending
+in the component which makes use of the resolved data. Suitable when waterfall
+is needed.
+
 ### `<ErrorBoundary fallback={...} onError={...} />`
 
 An optional implementation of [Error Boundary][error-boundary]. When not used,

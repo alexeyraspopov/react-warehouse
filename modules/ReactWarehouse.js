@@ -47,6 +47,14 @@ export function useResourceFlow(Resource, deps) {
   return state;
 }
 
+export function useResourceSync(Resource, deps) {
+  let resource = useResourceLookup(Resource, deps);
+  let value = unwrapResourceValue(resource);
+  useResourceLock(resource);
+  useDebugValue(value);
+  return value;
+}
+
 export function useResourceValue(resource) {
   let value = unwrapResourceValue(resource);
   useDebugValue(value);
