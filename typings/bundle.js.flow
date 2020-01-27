@@ -1,7 +1,8 @@
 // @flow
-opaque type ResourceCache<T, D> = Object;
 
-opaque type Resource<T> = Object;
+export opaque type ResourceCache<T, D> = {};
+
+export opaque type Resource<T> = {};
 
 type PendingQueryResult<T> = T | Promise<T> | [Promise<T>, () => void];
 

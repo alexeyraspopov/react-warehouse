@@ -1,8 +1,8 @@
 export as namespace ReactWarehouse;
 
-type ResourceCache<T, D> = Object;
+export type ResourceCache<T, D> = {};
 
-type Resource<T> = Object;
+export type Resource<T> = {};
 
 type PendingQueryResult<T> = T | Promise<T> | [Promise<T>, () => void];
 
