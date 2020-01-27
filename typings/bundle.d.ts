@@ -42,6 +42,6 @@ export function useResourceSync<T, D>(
 export function useResourceValue<T>(resource: Resource<T>): T;
 
 export var ErrorBoundary: Component<{
-  fallback: React.Node;
+  fallback: Node;
   onError?: (error: any) => void;
 }>;

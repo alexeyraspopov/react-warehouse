@@ -1,6 +1,6 @@
 {
   "name": "react-warehouse",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "React resource loader implementation",
   "license": "MIT",
   "main": "build/bundle.js",
