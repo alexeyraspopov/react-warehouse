@@ -36,7 +36,9 @@ test('async rendering of pending resource', async () => {
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await expect(Promise).toFlushPendingCallbacks();
+  await act(async () => {
+    await expect(Promise).toFlushPendingCallbacks();
+  });
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
@@ -52,7 +54,9 @@ test('async rendering of rejected resource', async () => {
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await expect(Promise).toFlushPendingCallbacks();
+  await act(async () => {
+    await expect(Promise).toFlushPendingCallbacks();
+  });
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>failure</span>);
@@ -74,7 +78,9 @@ test('query cancellation of pending resource', async () => {
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('b');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await expect(Promise).toFlushPendingCallbacks();
+  await act(async () => {
+    await expect(Promise).toFlushPendingCallbacks();
+  });
   expect(Scheduler).toFlushWithoutYielding();
   expect(cancel).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>result:b</span>);
@@ -90,7 +96,9 @@ test('subsequent re-rendering of new pending resource', async () => {
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await expect(Promise).toFlushPendingCallbacks();
+  await act(async () => {
+    await expect(Promise).toFlushPendingCallbacks();
+  });
   expect(Scheduler).toFlushWithoutYielding();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
   act(() => {
@@ -99,7 +107,9 @@ test('subsequent re-rendering of new pending resource', async () => {
   expect(Scheduler).toFlushWithoutYielding();
   expect(query).toHaveBeenCalledWith('b');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await expect(Promise).toFlushPendingCallbacks();
+  await act(async () => {
+    await expect(Promise).toFlushPendingCallbacks();
+  });
   expect(Scheduler).toFlushWithoutYielding();
   expect(cancel).not.toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>result:b</span>);

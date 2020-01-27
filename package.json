@@ -9,7 +9,7 @@
     "build/*"
   ],
   "scripts": {
-    "test": "jest --setupFilesAfterEnv ./jest.setup.js",
+    "test": "jest --resetMocks --setupFilesAfterEnv ./jest.setup.js",
     "build": "rollup --config ./rollup.config.js"
   },
   "peerDependencies": {
