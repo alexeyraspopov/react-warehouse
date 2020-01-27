@@ -1,4 +1,5 @@
 // @flow
+import type { Component, Node } from 'react';
 
 export opaque type ResourceCache<T, D> = {};
 
@@ -39,3 +40,8 @@ declare export function useResourceSync<T, D>(
 ): T;
 
 declare export function useResourceValue<T>(resource: Resource<T>): T;
+
+declare export var ErrorBoundary: Component<{
+  fallback: React.Node,
+  onError?: (error: any) => void,
+}>;

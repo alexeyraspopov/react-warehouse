@@ -1,4 +1,5 @@
 export as namespace ReactWarehouse;
+import { Component, Node } from 'react';
 
 export type ResourceCache<T, D> = {};
 
@@ -39,3 +40,8 @@ export function useResourceSync<T, D>(
 ): T;
 
 export function useResourceValue<T>(resource: Resource<T>): T;
+
+export var ErrorBoundary: Component<{
+  fallback: React.Node;
+  onError?: (error: any) => void;
+}>;
