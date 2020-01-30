@@ -5,9 +5,9 @@ export opaque type ResourceCache<T, D> = {};
 
 export opaque type Resource<T> = {};
 
-type PendingQueryResult<T> = T | Promise<T> | [Promise<T>, () => void];
+export type ResourceQuery<T> = T | Promise<T> | [Promise<T>, () => void];
 
-type QueryFunction<T, D> = (...deps: D) => PendingQueryResult<T>;
+type QueryFunction<T, D> = (...deps: D) => ResourceQuery<T>;
 
 type ResourceOptions<T, D> = {|
   query: QueryFunction<T, D>,
