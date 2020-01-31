@@ -15,6 +15,7 @@ without sacrificing user experience.
   - [Preloading resources](#preloading-resources)
   - [Controlling max age and cache capacity](#controlling-max-age-and-cache-capacity)
 - [API Reference](#api)
+- [Typings](#typings)
 
 ## Abilities & Restrictions
 
@@ -322,6 +323,53 @@ is needed.
 
 An optional implementation of [Error Boundary][error-boundary]. When not used,
 will be tree-shaked out of the bundle.
+
+## Typings
+
+The project includes typings for both Flow and TypeScript without requiring
+installation of additional packages. Most of the types working under the hood
+providing developer experience benefits. There two types that can be used for
+annotating resource's query function and components props.
+
+_It is recommended to provide explicit type annotation to `query()` functions._
+
+### `type ResourceQuery<T>`
+
+A union type of variants that `query()` can return. The usage is optional since
+specific result type can be specified instead.
+
+```javascript
+import { createResource } from 'react-warehouse';
+// type ResourceQuery<T> = T | Promise<T> | [Promise<T>, () => void]
+import type { ResourceQuery } from 'react-warehouse';
+
+type User = { id: string, fullName: string };
+
+let UserInfo = createResource({
+  query(userId: string): ResourceQuery<User> {
+    return ...;
+  },
+});
+```
+
+### `type Resource<T>`
+
+Represents a resource instance that is passed from parent component to child
+that later suspends. The usage is optional since necessary hooks are typed.
+Explicit usage is needed when a component's annotation is required
+
+```javascript
+import { useResourceValue } from 'react-warehouse';
+import type { Resource } from 'react-warehouse';
+
+type User = { id: string, fullName: string };
+type Props = { user$: Resource<User> };
+
+export function UserInfoView({ user$ }: Props) {
+  let user = useResourceValue(user$);
+  return ...;
+}
+```
 
 [react-hooks]: https://reactjs.org/docs/hooks-intro.html
 [react-suspense]: https://reactjs.org/docs/concurrent-mode-suspense.html
