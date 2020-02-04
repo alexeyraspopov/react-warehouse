@@ -11,10 +11,11 @@ without sacrificing user experience.
 - [Abilities & Restrictions](#abilities--restrictions)
 - [Implementation Details](#implementation)
 - [Usage Examples & Recipes](#usage)
-  - [Basic data fetching](#basic-data-fetching)
-  - [Preloading resources](#preloading-resources)
+  - [Render as you fetch](#render-as-you-fetch)
+  - [Local-first & Refactoring-friendly](#local-first--refactoring-friendly)
+  - [Opt-in waterfall requests](#opt-in-waterfall-requests)
   - [Controlling max age and cache capacity](#controlling-max-age-and-cache-capacity)
-- [API Reference](#api)
+- [API Reference](#api-reference)
 - [Typings](#typings)
 
 ## Abilities & Restrictions
@@ -95,131 +96,31 @@ request (see examples below).
 
 ## Usage
 
-### Basic data fetching
+### Render as you fetch
+
+_To be defined_
+
+### Local-first & Refactoring-friendly
+
+_To be defined_
+
+### Opt-in waterfall requests
+
+If a component requires data queried from different sources where one piece
+depends on another, you can bypass "render as you fetch" pattern and request
+data directly where it's going to be used.
 
 ```javascript
-// PokemonResource.js
-import { createResource } from 'react-warehouse';
+import { useResourceValue, useResourceSync } from 'react-warehouse';
 
-export let Pokemon = createResource({
-  query(id) {
-    let url = `https://pokeapi.co/api/v2/pokemon/${id}/`;
-    return fetch(url).then(response => response.json());
-  },
-});
-```
-
-```javascript
-// PokemonInfo.js
-import React, { Suspense } from 'react';
-import { useQuery } from 'react-warehouse';
-import { Pokemon } from './PokemonResource';
-
-export default function PokemonInfoSection() {
-  return (
-    <article>
-      <h2>Pokemon Profiles</h2>
-      <Suspense fallback={<p>Loading profile…</p>}>
-        <PokemonInfo name="charmander" />
-        <PokemonInfo name="bulbasaur" />
-        <PokemonInfo name="squirtle" />
-      </Suspense>
-    </article>
-  );
-}
-
-function PokemonInfo({ name }) {
-  let profile = useQuery(Pokemon, name);
+function FriendList({ user$ }) {
+  let user = useResourceValue(user$);
+  let friends = useResourceSync(FriendsResource, [user.id]);
   return (
     <section>
-      <p>{profile.name}</p>
-      <img src={profile.sprites.front_default} />
+      {friends.map(friend => ...)}
     </section>
   );
-}
-```
-
-### Preloading resources
-
-Suspense documentation [describes][concurrent-suspense] issues related to
-requests waterfall. Those are scenarios which are pretty easy to face:
-
-```javascript
-import { useQuery } from 'react-warehouse';
-
-function Parent() {
-  return (
-    <Suspense fallback={<Spinner />}>
-      <Child />
-    </Suspense>
-  );
-}
-
-function Child() {
-  let dataA = useQuery(ResourceA, '/');
-  let dataB = useQuery(ResourceB, 'someId');
-  // ...
-}
-```
-
-Two resource query are not depending on each other and both of them can suspend.
-The problem is that we need to wait for the first query to resolve in order to
-start querying the second resource. This may lead to downgraded UX.
-
-An additional API allows performing necessary requests before the data is
-required for rendering and then suspending the tree only when requests are
-not yet finished.
-
-```javascript
-import { usePreloadedQuery, useQuery } from 'react-warehouse';
-
-function Parent() {
-  // If data is missing, the hook will request it without suspending
-  // In this example, requests will be made in parallel.
-  usePreloadedQuery(ResourceA, '/');
-  usePreloadedQuery(ResourceB, 'someId');
-  return (
-    <Suspense fallback={<Spinner />}>
-      <Child />
-    </Suspense>
-  );
-}
-
-function Child() {
-  // If data is still missing by the time this component renders,
-  // the tree will be suspended, but without additional requests
-  let dataA = useQuery(ResourceA, '/');
-  let dataB = useQuery(ResourceB, 'someId');
-  // ...
-}
-```
-
-This particular approach benefits the UX but may introduce issues for DX.
-For examples, the data requirement can be removed from child component but
-preloaded query will be missed. Or, the input in child component will be
-changed, but not in preloading query, which brings waterfall back and
-additionally requests unnecessary data.
-
-This is where query refs come into play. They create explicit dependency
-between preloading parent and the child components:
-
-```javascript
-import { usePreloadedQuery, useQueryRef } from 'react-warehouse';
-
-function Parent() {
-  let dataARef = usePreloadedQuery(ResourceA, '/');
-  let dataBRef = usePreloadedQuery(ResourceB, 'someId');
-  return (
-    <Suspense fallback={<Spinner />}>
-      <Child dataARef={dataARef} dataBRef={dataBRef} />
-    </Suspense>
-  );
-}
-
-function Child({ dataARef, dataBRef }) {
-  let dataA = useQueryRef(dataARef);
-  let dataB = useQueryRef(dataBRef);
-  // ...
 }
 ```
 
@@ -249,9 +150,9 @@ let PokemonAbilities = createResource({
 });
 ```
 
-Cache capacity makes sure the cache size don't create performance issues for the
-application. Modifying it is not necessary in most cases, but there are some
-that can take advantage of it.
+Cache capacity makes sure the cache size don't create performance and memory
+issues for the application. Modifying it is not necessary in most cases, but
+there are some that can take advantage of it.
 
 For example, when performing real time search request, we can set `capacity: 1`
 which means we only need the latest result of the search saved. So whenever
@@ -282,6 +183,10 @@ so clicking 6 times on "next page" really fast, will produce 6 requests, but 3
 of them will be cancelled based on capacity.
 
 ## API Reference
+
+The API designed in the way that does not require specific non-local changes.
+The hooks can be added to existing components without refactoring the whole
+implementation.
 
 ### `createResource(options)`
 
@@ -333,14 +238,14 @@ annotating resource's query function and components props.
 
 _It is recommended to provide explicit type annotation to `query()` functions._
 
-### `type ResourceQuery<T>`
+### `type ResourceQuery<Data>`
 
 A union type of variants that `query()` can return. The usage is optional since
 specific result type can be specified instead.
 
 ```javascript
 import { createResource } from 'react-warehouse';
-// type ResourceQuery<T> = T | Promise<T> | [Promise<T>, () => void]
+// type ResourceQuery<Data> = Data | Promise<Data> | [Promise<Data>, () => void]
 import type { ResourceQuery } from 'react-warehouse';
 
 type User = { id: string, fullName: string };
@@ -352,7 +257,7 @@ let UserInfo = createResource({
 });
 ```
 
-### `type Resource<T>`
+### `type Resource<Data>`
 
 Represents a resource instance that is passed from parent component to child
 that later suspends. The usage is optional since necessary hooks are typed.
