@@ -1,45 +1,48 @@
 // @flow
 import type { Component, Node } from 'react';
 
-export opaque type ResourceCache<T, D> = {};
+export opaque type ResourceCache<Data, Deps> = {};
 
-export opaque type Resource<T> = {};
+export opaque type Resource<Data> = {};
 
-export type ResourceQuery<T> = T | Promise<T> | [Promise<T>, () => void];
+export type ResourceQuery<Data> =
+  | Data
+  | Promise<Data>
+  | [Promise<Data>, () => void];
 
-type QueryFunction<T, D> = (...deps: D) => ResourceQuery<T>;
+type QueryFunction<Data, Deps> = (...deps: Deps) => ResourceQuery<Data>;
 
-type ResourceOptions<T, D> = {|
-  query: QueryFunction<T, D>,
+type ResourceOptions<Data, Deps> = {|
+  query: QueryFunction<Data, Deps>,
   maxAge?: number,
   capacity?: number,
 |};
 
-declare export function createResource<T, D>(
-  options: ResourceOptions<T, D>,
-): ResourceCache<T, D>;
+declare export function createResource<Data, Deps>(
+  options: ResourceOptions<Data, Deps>,
+): ResourceCache<Data, Deps>;
 
-declare export function useResource<T, D>(
-  Resource: ResourceCache<T, D>,
-  deps: D,
-): Resource<T>;
+declare export function useResource<Data, Deps>(
+  Resource: ResourceCache<Data, Deps>,
+  deps: Deps,
+): Resource<Data>;
 
-declare export function useResourceFactory<T, D>(
-  query: QueryFunction<T, D>,
-  deps: D,
-): Resource<T>;
+declare export function useResourceFactory<Data, Deps>(
+  query: QueryFunction<Data, Deps>,
+  deps: Deps,
+): Resource<Data>;
 
-declare export function useResourceFlow<T, D>(
-  Resource: ResourceCache<T, D>,
-  deps: D,
-): [Resource<T>, boolean];
+declare export function useResourceFlow<Data, Deps>(
+  Resource: ResourceCache<Data, Deps>,
+  deps: Deps,
+): [Resource<Data>, boolean];
 
-declare export function useResourceSync<T, D>(
-  Resource: ResourceCache<T, D>,
-  deps: D,
-): T;
+declare export function useResourceSync<Data, Deps>(
+  Resource: ResourceCache<Data, Deps>,
+  deps: Deps,
+): Data;
 
-declare export function useResourceValue<T>(resource: Resource<T>): T;
+declare export function useResourceValue<Data>(resource: Resource<Data>): Data;
 
 declare export var ErrorBoundary: Component<{
   fallback: Node,

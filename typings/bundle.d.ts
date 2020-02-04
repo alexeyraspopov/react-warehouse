@@ -1,45 +1,48 @@
 export as namespace ReactWarehouse;
 import { Component, Node } from 'react';
 
-export type ResourceCache<T, D> = {};
+export type ResourceCache<Data, Deps> = {};
 
-export type Resource<T> = {};
+export type Resource<Data> = {};
 
-export type ResourceQuery<T> = T | Promise<T> | [Promise<T>, () => void];
+export type ResourceQuery<Data> =
+  | Data
+  | Promise<Data>
+  | [Promise<Data>, () => void];
 
-type QueryFunction<T, D> = (...deps: D) => ResourceQuery<T>;
+type QueryFunction<Data, Deps> = (...deps: Deps) => ResourceQuery<Data>;
 
-type ResourceOptions<T, D> = {
-  query: QueryFunction<T, D>;
+type ResourceOptions<Data, Deps> = {
+  query: QueryFunction<Data, Deps>;
   maxAge?: number;
   capacity?: number;
 };
 
-export function createResource<T, D>(
-  options: ResourceOptions<T, D>,
-): ResourceCache<T, D>;
+export function createResource<Data, Deps>(
+  options: ResourceOptions<Data, Deps>,
+): ResourceCache<Data, Deps>;
 
-export function useResource<T, D>(
-  Resource: ResourceCache<T, D>,
-  deps: D,
-): Resource<T>;
+export function useResource<Data, Deps>(
+  Resource: ResourceCache<Data, Deps>,
+  deps: Deps,
+): Resource<Data>;
 
-export function useResourceFactory<T, D>(
-  query: QueryFunction<T, D>,
-  deps: D,
-): Resource<T>;
+export function useResourceFactory<Data, Deps>(
+  query: QueryFunction<Data, Deps>,
+  deps: Deps,
+): Resource<Data>;
 
-export function useResourceFlow<T, D>(
-  Resource: ResourceCache<T, D>,
-  deps: D,
-): [Resource<T>, boolean];
+export function useResourceFlow<Data, Deps>(
+  Resource: ResourceCache<Data, Deps>,
+  deps: Deps,
+): [Resource<Data>, boolean];
 
-export function useResourceSync<T, D>(
-  Resource: ResourceCache<T, D>,
-  deps: D,
-): T;
+export function useResourceSync<Data, Deps>(
+  Resource: ResourceCache<Data, Deps>,
+  deps: Deps,
+): Data;
 
-export function useResourceValue<T>(resource: Resource<T>): T;
+export function useResourceValue<Data>(resource: Resource<Data>): Data;
 
 export var ErrorBoundary: Component<{
   fallback: Node;
