@@ -1,5 +1,5 @@
 import React, { Fragment, Suspense, useState } from 'react';
-import { createResource, useQuery } from 'react-warehouse';
+import { createResource, useResourceSync } from 'react-warehouse';
 import {
   BrowserRouter,
   Switch,
@@ -7,7 +7,6 @@ import {
   NavLink,
   useParams,
 } from 'react-router-dom';
-import qs from 'query-string';
 import Img from './Img';
 
 export default function App() {
@@ -22,17 +21,14 @@ export default function App() {
 }
 
 let Pokemons = createResource({
-  query(input) {
-    let url = `https://pokeapi.co/api/v2/pokemon/?` + qs.stringify(input);
+  query(offset, limit) {
+    let url = `https://pokeapi.co/api/v2/pokemon/?offset=${offset}&limit=${limit}`;
     let controller = new AbortController();
     let response = fetch(url, { signal: controller.signal })
       .then(response => response.json())
       .then(response => response.results);
     let onCancel = () => controller.abort();
     return [response, onCancel];
-  },
-  getCacheKey(input) {
-    return qs.stringify(input);
   },
   capacity: 3,
   maxAge: 60 * 60 * 1000,
@@ -81,7 +77,7 @@ function PokemonProfileSection() {
 }
 
 function PokemonList({ offset, limit }) {
-  let pokemons = useQuery(Pokemons, { offset, limit });
+  let pokemons = useResourceSync(Pokemons, [offset, limit]);
   return (
     <ul>
       {pokemons.map(pokemon => (
@@ -118,7 +114,7 @@ function PokemonPage() {
 }
 
 function PokemonInfo({ name }) {
-  let pokemon = useQuery(Pokemon, name);
+  let pokemon = useResourceSync(Pokemon, [name]);
   return (
     <Fragment>
       <Img src={pokemon.sprites.front_default} />

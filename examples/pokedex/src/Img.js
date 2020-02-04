@@ -1,5 +1,5 @@
 import React from 'react';
-import { createResource, useQuery } from 'react-warehouse';
+import { createResource, useResourceSync } from 'react-warehouse';
 
 let Images = createResource({
   query(src) {
@@ -14,6 +14,6 @@ let Images = createResource({
 });
 
 export default function Img(props) {
-  useQuery(Images, props.src);
+  useResourceSync(Images, [props.src]);
   return <img {...props} />;
 }
