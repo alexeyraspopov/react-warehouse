@@ -6,7 +6,7 @@
     "react": "0.0.0-experimental-5faf377df",
     "react-dom": "0.0.0-experimental-5faf377df",
     "react-scripts": "3.2.0",
-    "react-warehouse": "^0.1.0"
+    "react-warehouse": "^0.3.2"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,5 +1,5 @@
 import React, { Suspense, useState } from 'react';
-import { createResource, useQuery } from 'react-warehouse';
+import { createResource, useResource, useResourceValue } from 'react-warehouse';
 import useDebouncedValue from './useDebouncedValue';
 
 let Search = createResource({
@@ -17,7 +17,8 @@ let Search = createResource({
 
 export default function App() {
   let [text, setText] = useState('');
-  let query = useDebouncedValue(text, 100);
+  let query = useDebouncedValue(text, 200);
+  let query$ = useResource(Search, [query]);
   return (
     <article>
       <input
@@ -27,15 +28,15 @@ export default function App() {
       />
       {query.length > 0 ? (
         <Suspense fallback={<p>Searching {query}…</p>}>
-          <SearchResults query={query} />
+          <SearchResults query$={query$} />
         </Suspense>
       ) : null}
     </article>
   );
 }
 
-function SearchResults({ query }) {
-  let { results } = useQuery(Search, query);
+function SearchResults({ query$ }) {
+  let { results } = useResourceValue(query$);
   return results.length > 0 ? (
     <ul>
       {results.map(result => (
