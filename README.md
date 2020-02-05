@@ -54,8 +54,8 @@ Things on the roadmap:
 
 _This section describes the logic behind the cache implementation. It is not
 mandatory. You can skip it and read [Usage Examples](#usage) and
-[API Reference](#api). This section is still in progress, while I'm trying to
-make the explanation easier to read and understand._
+[API Reference](#api-reference). This section is still in progress, while I'm
+trying to make the explanation easier to read and understand._
 
 Cache invalidation is one of the hardest things in programming. What's even
 harder is to implement an abstraction that cover all possible cases in product
@@ -72,8 +72,8 @@ cached data can be reused.
 The combination is defined by a set of UX scenarios that should be supported
 without unnecessary overhead for the developer.
 
-When the library performs an async request, the promise is stored in the cache
-and the tree is suspended (see [Suspense for Data Fetching][concurrent-suspense]).
+When the library performs an async request, the pending promise is stored in
+the cache and the tree is suspended (see [Suspense for Data Fetching][concurrent-suspense]).
 If two components trying to access the same data, they will suspend with the
 same promise.
 
@@ -109,6 +109,9 @@ _To be defined_
 If a component requires data queried from different sources where one piece
 depends on another, you can bypass "render as you fetch" pattern and request
 data directly where it's going to be used.
+
+Note: `useResourceSync()` only works with pre-defined resources since it can't
+rely on the component's state.
 
 ```javascript
 import { useResourceValue, useResourceSync } from 'react-warehouse';
