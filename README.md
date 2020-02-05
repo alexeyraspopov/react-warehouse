@@ -27,7 +27,7 @@ What the API can do:
   search results, etc.
 - **Render-as-you-fetch approach**  
   The API allows implementing the approach suggested by React team. See more
-  in corresponding [section of docs][render-as-you-fetch]
+  in corresponding [section of docs][render-as-you-fetch].
 - **Request cancellation**  
   When a cancel handler is available, the lib will attempt to use it whenever
   it's possible. Currently, Suspense has some limitations, but there are cases
@@ -261,7 +261,7 @@ let UserInfo = createResource({
 
 Represents a resource instance that is passed from parent component to child
 that later suspends. The usage is optional since necessary hooks are typed.
-Explicit usage is needed when a component's annotation is required
+Explicit usage is needed when a component's annotation is required.
 
 ```javascript
 import { useResourceValue } from 'react-warehouse';
