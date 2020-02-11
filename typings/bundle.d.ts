@@ -1,5 +1,5 @@
 export as namespace ReactWarehouse;
-import { Component, Node } from 'react';
+import * as React from 'react';
 
 export type ResourceCache<Data, Deps> = {};
 
@@ -44,7 +44,10 @@ export function useResourceSync<Data, Deps>(
 
 export function useResourceValue<Data>(resource: Resource<Data>): Data;
 
-export var ErrorBoundary: Component<{
-  fallback: Node;
+type ErrorBoundaryProps = {
+  fallback: React.Node;
+  children: React.Node;
   onError?: (error: any) => void;
-}>;
+};
+
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps> {}
