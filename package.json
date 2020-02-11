@@ -1,6 +1,6 @@
 {
   "name": "react-warehouse",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "React resource loader implementation",
   "license": "MIT",
   "main": "build/bundle.js",
@@ -8,6 +8,7 @@
   "files": [
     "build/*"
   ],
+  "sideEffects": false,
   "scripts": {
     "test": "jest --resetMocks --setupFilesAfterEnv ./jest.setup.js",
     "build": "rollup --config ./rollup.config.js"
