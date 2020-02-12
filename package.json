@@ -3,6 +3,7 @@
   "version": "0.3.3",
   "description": "React resource loader implementation",
   "license": "MIT",
+  "repository": "alexeyraspopov/react-warehouse",
   "main": "build/bundle.js",
   "module": "build/module.js",
   "files": [
