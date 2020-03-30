@@ -5,15 +5,19 @@ import {
   useEffect,
   useMemo,
   useState,
+  useCallback,
 } from 'react';
+import { useSubscription } from 'use-subscription';
 import LRUCache from './LRUCache';
 import hashCode from './hashCode';
+import Signal from './Signal';
 
 let Pending = 0;
 let Resolved = 1;
 let Rejected = 2;
 
 let Registry = createContext(new Map());
+let Signals = createContext(new Map());
 
 let ResourcePrototype = {
   query: null,
@@ -55,6 +59,23 @@ export function useResourceSync(Resource, deps) {
   return value;
 }
 
+export function useResourceMutation(Resource, resource) {
+  let cache = useResourceCache(Resource);
+  let signal = useResourceSignal(Resource);
+  let key = resource.key;
+  let mutate = useCallback(
+    function mutate() {
+      let resource = createResourceInstance(key);
+      let entity = getPendingEntity(Resource.mutate, arguments);
+      updateResourceWithEntity(resource, entity);
+      cache.set(key, resource);
+      signal.publish(key);
+    },
+    [key, cache, signal, Resource],
+  );
+  return mutate;
+}
+
 export function useResourceValue(resource) {
   let value = unwrapResourceValue(resource);
   useDebugValue(value);
@@ -63,7 +84,18 @@ export function useResourceValue(resource) {
 
 function useResourceLookup(Resource, deps) {
   let cache = useResourceCache(Resource);
+  let signal = useResourceSignal(Resource);
   let key = createCacheKey(Resource, deps);
+  let subscription = useMemo(() => {
+    let getCurrentValue = () => lookupResource(Resource, cache, key, deps);
+    let subscribe = (cb) => signal.subscribe(key, cb);
+    return { getCurrentValue, subscribe };
+  }, [key, cache, signal, Resource]);
+  let resource = useSubscription(subscription);
+  return resource;
+}
+
+function lookupResource(Resource, cache, key, deps) {
   let resource = cache.has(key) ? cache.get(key) : null;
   if (resource == null || isResourceStale(Resource, resource)) {
     let newResource = createResourceInstance(key);
@@ -83,6 +115,16 @@ function useResourceCache(Resource) {
   let cache = LRUCache(Resource.capacity, cleanupResource);
   registry.set(Resource, cache);
   return cache;
+}
+
+function useResourceSignal(Resource) {
+  let registry = useContext(Signals);
+  if (registry.has(Resource)) {
+    return registry.get(Resource);
+  }
+  let signal = Signal();
+  registry.set(Resource, signal);
+  return signal;
 }
 
 function useResourcePendingState(resource) {

@@ -198,6 +198,8 @@ Returns `Resource` instance that will be consumed by following hooks.
 
 - `options.query` — function that does the job. Must return a payload, or
   promise of payload, or tuple `[Promise, onCancel]`. See usage examples.
+- `options.mutate` _(optional)_ — function that describes arbitrary mutations
+  and returns a new resource value that will be saved in cache.
 - `options.maxAge` _(optional)_ — Max resource age in milliseconds. Default is `10000`.
 - `options.capacity` _(optional)_ — Max cache size allowed. Default is `256`.
 
@@ -226,6 +228,11 @@ Unwraps resource instance's value and suspends if necessary.
 A composition of `useResource()` and `useResourceValue()` that allows suspending
 in the component which makes use of the resolved data. Suitable when waterfall
 is needed.
+
+### `useResourceMutation(Resource, resource)`
+
+Provides a callback that uses `Resource.mutate()` function to update `resource`
+value and cache.
 
 ### `<ErrorBoundary fallback={...} onError={...} />`
 

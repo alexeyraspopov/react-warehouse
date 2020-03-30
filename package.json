@@ -14,6 +14,9 @@
     "test": "jest --resetMocks --setupFilesAfterEnv ./jest.setup.js",
     "build": "rollup --config ./rollup.config.js"
   },
+  "dependencies": {
+    "use-subscription": "^1.4.1"
+  },
   "peerDependencies": {
     "react": "^16.9.0"
   },
