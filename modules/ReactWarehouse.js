@@ -66,7 +66,7 @@ function useResourceLookup(Resource, deps) {
   let key = createCacheKey(Resource, deps);
   let resource = cache.has(key) ? cache.get(key) : null;
   if (resource == null || isResourceStale(Resource, resource)) {
-    let newResource = createResourceInstance();
+    let newResource = createResourceInstance(key);
     let entity = getPendingEntity(Resource.query, deps);
     updateResourceWithEntity(newResource, entity);
     cache.set(key, newResource);
@@ -129,7 +129,7 @@ function isResourceStale(Resource, resource) {
 
 function useResourceMemo(query, deps) {
   return useMemo(() => {
-    let resource = createResourceInstance();
+    let resource = createResourceInstance(null);
     let entity = getPendingEntity(query, deps);
     updateResourceWithEntity(resource, entity);
     return resource;
@@ -164,8 +164,9 @@ function cleanupResource(resource) {
   }
 }
 
-function createResourceInstance() {
+function createResourceInstance(key) {
   return {
+    key: key,
     type: Pending,
     value: null,
     refs: 0,
