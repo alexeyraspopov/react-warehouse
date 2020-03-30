@@ -25,7 +25,7 @@ function Child({ resource, isPending }) {
 }
 
 test('sync rendering of resolved resource', () => {
-  let query = jest.fn(data => 'result:' + data);
+  let query = jest.fn((data) => 'result:' + data);
   let Resource = createResource({ query });
   let renderer = create(<Parent Resource={Resource} deps={['a']} />);
   expect(query).toHaveBeenCalledWith('a');
@@ -33,7 +33,7 @@ test('sync rendering of resolved resource', () => {
 });
 
 test('async rendering of pending resource', async () => {
-  let query = jest.fn(data => Promise.resolve('result:' + data));
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
   let Resource = createResource({ query });
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
@@ -51,7 +51,7 @@ test('async rendering of pending resource', async () => {
 });
 
 test('async rendering of rejected resource', async () => {
-  let query = jest.fn(data => Promise.reject('failure:' + data));
+  let query = jest.fn((data) => Promise.reject('failure:' + data));
   let Resource = createResource({ query });
   let renderer = create(null, { unstable_isConcurrent: true });
   jest.spyOn(console, 'error').mockImplementation(() => null);
@@ -70,7 +70,7 @@ test('async rendering of rejected resource', async () => {
 });
 
 test('async rendering of subsequent requests', async () => {
-  let query = jest.fn(data => Promise.resolve('result:' + data));
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
   let Resource = createResource({ query });
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
@@ -105,7 +105,7 @@ test('async rendering of subsequent requests', async () => {
 });
 
 test('race condition prevention', async () => {
-  let query = jest.fn(data => Promise.resolve('result:' + data));
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
   let Resource = createResource({ query });
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {

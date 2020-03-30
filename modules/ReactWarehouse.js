@@ -115,7 +115,7 @@ function useResourceLock(resource) {
 
 function createCacheKey(Resource, deps) {
   return deps.length > 0
-    ? deps.map(item => hashCode(item)).join('/')
+    ? deps.map((item) => hashCode(item)).join('/')
     : hashCode(Resource);
 }
 
@@ -183,9 +183,9 @@ function getPendingEntity(fn, deps) {
 function updateResourceWithEntity(resource, [value, cancel]) {
   resource.cancel = cancel;
   if (value && typeof value.then === 'function') {
-    resource.value = value
-      .then(result => updateResourceValue(resource, Resolved, result))
-      .catch(error => updateResourceValue(resource, Rejected, error));
+    let resolve = (result) => updateResourceValue(resource, Resolved, result);
+    let reject = (error) => updateResourceValue(resource, Rejected, error);
+    updateResourceValue(resource, Pending, value.then(resolve, reject));
   } else {
     updateResourceValue(resource, Resolved, value);
   }

@@ -21,14 +21,14 @@ function Child({ resource }) {
 }
 
 test('sync rendering of resolved resource', () => {
-  let query = jest.fn(data => 'result:' + data);
+  let query = jest.fn((data) => 'result:' + data);
   let renderer = create(<Parent factory={query} data="a" />);
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
 });
 
 test('async rendering of pending resource', async () => {
-  let query = jest.fn(data => Promise.resolve('result:' + data));
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
     renderer.update(<Parent factory={query} data="a" />);
@@ -45,7 +45,7 @@ test('async rendering of pending resource', async () => {
 });
 
 test('async rendering of rejected resource', async () => {
-  let query = jest.fn(data => Promise.reject('failure:' + data));
+  let query = jest.fn((data) => Promise.reject('failure:' + data));
   let renderer = create(null, { unstable_isConcurrent: true });
   jest.spyOn(console, 'error').mockImplementation(() => null);
   act(() => {
@@ -64,7 +64,7 @@ test('async rendering of rejected resource', async () => {
 
 test('query cancellation of pending resource', async () => {
   let cancel = jest.fn();
-  let query = jest.fn(data => [Promise.resolve('result:' + data), cancel]);
+  let query = jest.fn((data) => [Promise.resolve('result:' + data), cancel]);
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
     renderer.update(<Parent factory={query} data="a" />);
@@ -88,7 +88,7 @@ test('query cancellation of pending resource', async () => {
 
 test('subsequent re-rendering of new pending resource', async () => {
   let cancel = jest.fn();
-  let query = jest.fn(data => [Promise.resolve('result:' + data), cancel]);
+  let query = jest.fn((data) => [Promise.resolve('result:' + data), cancel]);
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
     renderer.update(<Parent factory={query} data="a" />);

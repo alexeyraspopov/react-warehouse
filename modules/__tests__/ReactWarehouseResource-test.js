@@ -25,7 +25,7 @@ function Child({ resource }) {
 }
 
 test('sync rendering of resolved resource', () => {
-  let query = jest.fn(data => 'result:' + data);
+  let query = jest.fn((data) => 'result:' + data);
   let Resource = createResource({ query });
   let renderer = create(<Parent Resource={Resource} deps={['a']} />);
   expect(query).toHaveBeenCalledWith('a');
@@ -33,7 +33,7 @@ test('sync rendering of resolved resource', () => {
 });
 
 test('async rendering of pending resource', async () => {
-  let query = jest.fn(data => Promise.resolve('result:' + data));
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
   let Resource = createResource({ query });
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
@@ -51,7 +51,7 @@ test('async rendering of pending resource', async () => {
 });
 
 test('async rendering of rejected resource', async () => {
-  let query = jest.fn(data => Promise.reject('failure:' + data));
+  let query = jest.fn((data) => Promise.reject('failure:' + data));
   let Resource = createResource({ query });
   let renderer = create(null, { unstable_isConcurrent: true });
   jest.spyOn(console, 'error').mockImplementation(() => null);
@@ -70,7 +70,7 @@ test('async rendering of rejected resource', async () => {
 });
 
 test('skipped rendering of resolved resource', async () => {
-  let query = jest.fn(data => Promise.resolve('result:' + data));
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
   let Resource = createResource({ query, maxAge: 1 });
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
@@ -87,7 +87,7 @@ test('skipped rendering of resolved resource', async () => {
   });
   expect(Scheduler).toFlushWithoutYielding();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
-  await new Promise(r => setTimeout(r, 500));
+  await new Promise((r) => setTimeout(r, 500));
   act(() => {
     renderer.update(
       <Fragment>
@@ -107,7 +107,7 @@ test('skipped rendering of resolved resource', async () => {
 });
 
 test('skipped rendering of not expired resource', async () => {
-  let query = jest.fn(data => Promise.resolve('result:' + data));
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
   let Resource = createResource({ query, maxAge: 10000 });
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
@@ -159,7 +159,7 @@ test('skipped rendering of singleton resource', async () => {
 });
 
 test('re-fetching of expired resource', async () => {
-  let query = jest.fn(data => Promise.resolve('result:' + data));
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
   let Resource = createResource({ query, maxAge: 10 });
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
@@ -176,7 +176,7 @@ test('re-fetching of expired resource', async () => {
     renderer.update(null);
   });
   expect(Scheduler).toFlushWithoutYielding();
-  await new Promise(r => setTimeout(r, 500));
+  await new Promise((r) => setTimeout(r, 500));
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
@@ -191,7 +191,7 @@ test('re-fetching of expired resource', async () => {
 
 test('cancellation of out-of-range resource', async () => {
   let cancel = jest.fn();
-  let query = jest.fn(data => [Promise.resolve('result:' + data), cancel]);
+  let query = jest.fn((data) => [Promise.resolve('result:' + data), cancel]);
   let Resource = createResource({ query, capacity: 1 });
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => {
