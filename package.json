@@ -24,9 +24,9 @@
     "@babel/core": "^7.7.0",
     "@babel/preset-env": "^7.7.1",
     "@babel/preset-react": "^7.7.0",
-    "babel-jest": "^24.9.0",
-    "jest": "^24.9.0",
-    "jest-react": "^0.9.0",
+    "babel-jest": "^26.0.1",
+    "jest": "^26.0.1",
+    "jest-react": "^0.11.1",
     "prettier": "^2.0.2",
     "react": "^16.12.0",
     "react-test-renderer": "^16.12.0",
@@ -37,9 +37,19 @@
     "rollup-plugin-multi-entry": "^2.1.0",
     "scheduler": "^0.18.0"
   },
-  "browserslist": [
-    "> 0.25%, not dead"
-  ],
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ],
+      "@babel/preset-react"
+    ]
+  },
   "prettier": {
     "singleQuote": true,
     "trailingComma": "all"
