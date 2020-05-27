@@ -1,11 +1,11 @@
 {
   "name": "react-warehouse",
   "version": "0.4.1",
+  "type": "module",
   "description": "React resource loader implementation",
   "license": "MIT",
   "repository": "alexeyraspopov/react-warehouse",
-  "main": "build/bundle.js",
-  "module": "build/module.js",
+  "main": "build/module.js",
   "files": [
     "build/*"
   ],
@@ -32,7 +32,6 @@
     "react-test-renderer": "^16.12.0",
     "rollup": "^1.26.3",
     "rollup-plugin-auto-external": "^2.0.0",
-    "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-bundle-size": "^1.0.3",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-multi-entry": "^2.1.0",
