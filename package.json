@@ -1,11 +1,11 @@
 {
   "name": "react-warehouse",
   "version": "0.4.1",
-  "type": "module",
   "description": "React resource loader implementation",
   "license": "MIT",
   "repository": "alexeyraspopov/react-warehouse",
-  "main": "build/module.js",
+  "main": "build/bundle.js",
+  "module": "build/module.js",
   "files": [
     "build/*"
   ],
@@ -26,29 +26,17 @@
     "@babel/preset-react": "^7.7.0",
     "babel-jest": "^26.0.1",
     "jest": "^26.0.1",
-    "jest-react": "^0.11.1",
+    "jest-react": "^0.12.0",
     "prettier": "^2.0.2",
-    "react": "^16.12.0",
-    "react-test-renderer": "^16.12.0",
-    "rollup": "^1.26.3",
+    "react": "^17.0.1",
+    "react-test-renderer": "^17.0.1",
+    "rollup": "^2.36.2",
     "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-bundle-size": "^1.0.3",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-multi-entry": "^2.1.0",
-    "scheduler": "^0.18.0"
-  },
-  "babel": {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "node": "current"
-          }
-        }
-      ],
-      "@babel/preset-react"
-    ]
+    "scheduler": "^0.20.1"
   },
   "prettier": {
     "singleQuote": true,
