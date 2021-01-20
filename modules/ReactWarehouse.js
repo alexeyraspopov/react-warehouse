@@ -226,12 +226,16 @@ function getPendingEntity(fn, deps) {
 function updateResourceWithEntity(resource, [value, cancel]) {
   resource.cancel = cancel;
   if (value && typeof value.then === 'function') {
-    let resolve = (result) => updateResourceValue(resource, Resolved, result);
-    let reject = (error) => updateResourceValue(resource, Rejected, error);
-    updateResourceValue(resource, Pending, value.then(resolve, reject));
+    updateAsyncResourceValue(resource, value);
   } else {
     updateResourceValue(resource, Resolved, value);
   }
+}
+
+function updateAsyncResourceValue(resource, promise) {
+  let resolve = (result) => updateResourceValue(resource, Resolved, result);
+  let reject = (error) => updateResourceValue(resource, Rejected, error);
+  updateResourceValue(resource, Pending, promise.then(resolve, reject));
 }
 
 function updateResourceValue(resource, type, value) {

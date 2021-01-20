@@ -10,7 +10,7 @@ expect.extend({
     return { pass: true, message: 'All callbacks flushed' };
   },
   toFlushPendingCallbacks(Promise) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setImmediate(() => {
         resolve({ pass: true, message: 'All callbacks flushed' });
       });
