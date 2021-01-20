@@ -1,5 +1,5 @@
 export as namespace ReactWarehouse;
-import * as React from 'react';
+import { Node, Component } from 'react';
 
 export type ResourceCache<Data, Deps, Vars> = {};
 
@@ -60,9 +60,9 @@ export function useResourceMutation<Data, Vars>(
 export function useResourceValue<Data>(resource: Resource<Data>): Data;
 
 type ErrorBoundaryProps = {
-  fallback: React.Node;
-  children: React.Node;
+  fallback: Node;
+  children: Node;
   onError?: (error: any) => void;
 };
 
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps> {}
+export class ErrorBoundary extends Component<ErrorBoundaryProps> {}

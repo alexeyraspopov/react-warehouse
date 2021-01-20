@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import { Node, Component } from 'react';
 
 export opaque type ResourceCache<Data, Deps, Vars> = {};
 
@@ -60,9 +60,9 @@ declare export function useResourceMutation<Data, Vars>(
 declare export function useResourceValue<Data>(resource: Resource<Data>): Data;
 
 type ErrorBoundaryProps = {
-  fallback: React$Node,
-  children: React$Node,
+  fallback: Node,
+  children: Node,
   onError?: (error: any) => void,
 };
 
-declare export class ErrorBoundary extends React$Component<ErrorBoundaryProps> {}
+declare export class ErrorBoundary extends Component<ErrorBoundaryProps> {}
