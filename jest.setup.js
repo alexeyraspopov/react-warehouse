@@ -17,3 +17,11 @@ expect.extend({
     });
   },
 });
+
+global.flushScheduler = () => {
+  Scheduler.unstable_flushAllWithoutAsserting();
+};
+
+global.flushPromise = () => {
+  return new Promise((resolve) => setImmediate(resolve));
+};
