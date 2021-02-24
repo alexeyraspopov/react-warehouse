@@ -19,13 +19,11 @@ test('immediate resource resolving', async () => {
       </Suspense>,
     );
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
 });
@@ -48,13 +46,11 @@ test('immediate resource rejection', async () => {
       </ErrorBoundary>,
     );
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>failure</span>);
 });

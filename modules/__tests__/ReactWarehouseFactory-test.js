@@ -33,13 +33,11 @@ test('async rendering of pending resource', async () => {
   act(() => {
     renderer.update(<Parent factory={query} data="a" />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
 });
@@ -51,13 +49,11 @@ test('async rendering of rejected resource', async () => {
   act(() => {
     renderer.update(<Parent factory={query} data="a" />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>failure</span>);
 });
@@ -69,19 +65,17 @@ test('query cancellation of pending resource', async () => {
   act(() => {
     renderer.update(<Parent factory={query} data="a" />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
   act(() => {
     renderer.update(<Parent factory={query} data="b" />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('b');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(cancel).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>result:b</span>);
 });
@@ -93,24 +87,20 @@ test('subsequent re-rendering of new pending resource', async () => {
   act(() => {
     renderer.update(<Parent factory={query} data="a" />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
   act(() => {
     renderer.update(<Parent factory={query} data="b" />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('b');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(cancel).not.toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>result:b</span>);
 });

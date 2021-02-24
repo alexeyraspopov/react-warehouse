@@ -39,13 +39,11 @@ test('async rendering of pending resource', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
 });
@@ -58,13 +56,11 @@ test('async rendering of rejected resource', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>failure</span>);
 });
@@ -80,12 +76,10 @@ test('skipped rendering of resolved resource', async () => {
       </Fragment>,
     );
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
   await new Promise((r) => setTimeout(r, 500));
   act(() => {
@@ -96,7 +90,7 @@ test('skipped rendering of resolved resource', async () => {
       </Fragment>,
     );
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(
     <Fragment>
@@ -113,21 +107,19 @@ test('skipped rendering of not expired resource', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
   act(() => {
     renderer.update(null);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
 });
@@ -139,21 +131,19 @@ test('skipped rendering of singleton resource', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={[]} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalled();
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>the result</span>);
   act(() => {
     renderer.update(null);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={[]} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>the result</span>);
 });
@@ -165,27 +155,23 @@ test('re-fetching of expired resource', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
   act(() => {
     renderer.update(null);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   await new Promise((r) => setTimeout(r, 500));
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(2);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
 });
 
@@ -197,18 +183,16 @@ test('cancellation of out-of-range resource', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(cancel).not.toHaveBeenCalled();
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['b']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('b');
   expect(cancel).toHaveBeenCalled();
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>result:b</span>);
 });

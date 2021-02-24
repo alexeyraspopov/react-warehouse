@@ -39,13 +39,11 @@ test('async rendering of pending resource', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span pending={false}>result:a</span>);
 });
@@ -58,13 +56,11 @@ test('async rendering of rejected resource', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span>failure</span>);
 });
@@ -76,31 +72,27 @@ test('async rendering of subsequent requests', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span pending={false}>result:a</span>);
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['b']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('b');
   expect(renderer).toMatchRenderedOutput(<span pending={true}>result:a</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(2);
   expect(renderer).toMatchRenderedOutput(<span pending={false}>result:b</span>);
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span pending={false}>result:a</span>);
 });
 
@@ -111,31 +103,27 @@ test('race condition prevention', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span pending={false}>result:a</span>);
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['b']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('b');
   expect(renderer).toMatchRenderedOutput(<span pending={true}>result:a</span>);
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['c']} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('c');
   expect(renderer).toMatchRenderedOutput(<span pending={true}>result:a</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(3);
   expect(renderer).toMatchRenderedOutput(<span pending={false}>result:c</span>);
 });

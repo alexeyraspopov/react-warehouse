@@ -36,24 +36,20 @@ test('basic mutation of pre-queried resource flow', async () => {
   act(() => {
     renderer.update(<Parent Resource={Resource} deps={['a']} hook={hook} />);
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(query).toHaveBeenCalledWith('a');
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(query).toHaveBeenCalledTimes(1);
   expect(renderer).toMatchRenderedOutput(<span pending={false}>result:a</span>);
   act(() => {
     hook.mutate('c');
   });
-  expect(Scheduler).toFlushWithoutYielding();
+  flushScheduler();
   expect(mutate).toHaveBeenCalledWith('c');
   expect(renderer).toMatchRenderedOutput(<span pending={true}>result:a</span>);
-  await act(async () => {
-    await expect(Promise).toFlushPendingCallbacks();
-  });
-  expect(Scheduler).toFlushWithoutYielding();
+  await act(() => flushPromise());
+  flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span pending={false}>result:c</span>);
 });
