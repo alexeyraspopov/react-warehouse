@@ -1,25 +1,12 @@
-let JestReact = require('jest-react');
-let Scheduler = require('scheduler');
+import { unstable_toMatchRenderedOutput } from 'jest-react';
+import { unstable_flushAllWithoutAsserting } from 'scheduler';
 
 jest.mock('scheduler', () => require('scheduler/unstable_mock'));
 
-expect.extend({
-  toMatchRenderedOutput: JestReact.unstable_toMatchRenderedOutput,
-  toFlushWithoutYielding(Scheduler) {
-    Scheduler.unstable_flushAllWithoutAsserting();
-    return { pass: true, message: 'All callbacks flushed' };
-  },
-  toFlushPendingCallbacks(Promise) {
-    return new Promise((resolve) => {
-      setImmediate(() => {
-        resolve({ pass: true, message: 'All callbacks flushed' });
-      });
-    });
-  },
-});
+expect.extend({ toMatchRenderedOutput: unstable_toMatchRenderedOutput });
 
 global.flushScheduler = () => {
-  Scheduler.unstable_flushAllWithoutAsserting();
+  unstable_flushAllWithoutAsserting();
 };
 
 global.flushPromise = () => {
