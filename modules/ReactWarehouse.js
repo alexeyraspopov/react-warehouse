@@ -11,6 +11,7 @@ import { useSubscription } from 'use-subscription';
 import LRUCache from './LRUCache';
 import hashCode from './hashCode';
 import Signal from './Signal';
+import noop from './noop';
 
 let Pending = 0;
 let Resolved = 1;
@@ -21,7 +22,8 @@ let Signals = createContext(new Map());
 
 let ResourcePrototype = {
   query: null,
-  maxAge: 10000,
+  maxAge: 10 * 1000,
+  staleAge: 0,
   capacity: 256,
 };
 
@@ -250,5 +252,3 @@ function subscribe(suspender, callback) {
     open = false;
   };
 }
-
-function noop() {}

@@ -19,12 +19,14 @@ type ResourceOptions<Data, Deps, Vars> =
   | {
       query: QueryFunction<Data, Deps>;
       maxAge?: number;
+      staleAge?: number;
       capacity?: number;
     }
   | {
       query: QueryFunction<Data, Deps>;
       mutate: MutateFunction<Data, Vars>;
       maxAge?: number;
+      staleAge?: number;
       capacity?: number;
     };
 
@@ -37,7 +39,17 @@ export function useResource<Data, Deps>(
   deps: Deps,
 ): Resource<Data>;
 
+export function experimental_useResource<Data, Deps>(
+  Resource: ResourceCache<Data, Deps, *>,
+  deps: Deps,
+): Resource<Data>;
+
 export function useResourceFactory<Data, Deps>(
+  query: QueryFunction<Data, Deps>,
+  deps: Deps,
+): Resource<Data>;
+
+export function experimental_useResourceFactory<Data, Deps>(
   query: QueryFunction<Data, Deps>,
   deps: Deps,
 ): Resource<Data>;
@@ -58,6 +70,22 @@ export function useResourceMutation<Data, Vars>(
 ): MutateFunction<Data, Vars>;
 
 export function useResourceValue<Data>(resource: Resource<Data>): Data;
+
+export function experimental_useResourceValue<Data>(
+  resource: Resource<Data>,
+): Data;
+
+export function experimental_useResourceState<Data>(
+  resource: Resource<Data>,
+): [Data, (Data) => void];
+
+export function experimental_useResourcePendingState<Data>(
+  resource: Resource<Data>,
+): boolean;
+
+export function experimental_useResourceRetryCallback<Data>(
+  resource: Resource<Data>,
+): () => void;
 
 type ErrorBoundaryProps = {
   fallback: Node;
