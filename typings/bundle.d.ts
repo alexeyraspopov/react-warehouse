@@ -5,10 +5,7 @@ export type ResourceCache<Data, Deps, Vars> = {};
 
 export type Resource<Data> = {};
 
-export type ResourceQuery<Data> =
-  | Data
-  | Promise<Data>
-  | [Promise<Data>, () => void];
+export type ResourceQuery<Data> = Promise<Data> | [Promise<Data>, () => void];
 
 export type ResourceMutation<ResourceCache> = Function;
 
