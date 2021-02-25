@@ -68,21 +68,15 @@ export function useResourceMutation<Data, Vars>(
 
 export function useResourceValue<Data>(resource: Resource<Data>): Data;
 
-export function experimental_useResourceValue<Data>(
-  resource: Resource<Data>,
-): Data;
+export function experimental_useResourceValue<Data>(resource: Resource<Data>): Data;
 
 export function experimental_useResourceState<Data>(
   resource: Resource<Data>,
 ): [Data, (Data) => void];
 
-export function experimental_useResourcePendingState<Data>(
-  resource: Resource<Data>,
-): boolean;
+export function experimental_useResourcePendingState<Data>(resource: Resource<Data>): boolean;
 
-export function experimental_useResourceRetryCallback<Data>(
-  resource: Resource<Data>,
-): () => void;
+export function experimental_useResourceRetryCallback<Data>(resource: Resource<Data>): () => void;
 
 type ErrorBoundaryProps = {
   fallback: Node;

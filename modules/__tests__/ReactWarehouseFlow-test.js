@@ -1,11 +1,7 @@
 import React, { Suspense, Fragment } from 'react';
 import * as Scheduler from 'scheduler';
 import { create, act } from 'react-test-renderer';
-import {
-  createResource,
-  useResourceFlow,
-  useResourceValue,
-} from '../ReactWarehouse';
+import { createResource, useResourceFlow, useResourceValue } from '../ReactWarehouse';
 import { ErrorBoundary } from '../ErrorBoundary';
 
 function Parent({ Resource, deps }) {

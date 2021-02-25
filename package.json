@@ -39,6 +39,7 @@
     "scheduler": "^0.20.1"
   },
   "prettier": {
+    "printWidth": 100,
     "singleQuote": true,
     "trailingComma": "all"
   }

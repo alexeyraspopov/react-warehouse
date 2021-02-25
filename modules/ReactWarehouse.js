@@ -158,9 +158,7 @@ function useResourceLock(resource) {
 }
 
 function createCacheKey(Resource, deps) {
-  return deps.length > 0
-    ? deps.map((item) => hashCode(item)).join('/')
-    : hashCode(Resource);
+  return deps.length > 0 ? deps.map((item) => hashCode(item)).join('/') : hashCode(Resource);
 }
 
 function isResourceStale(Resource, resource) {

@@ -68,9 +68,7 @@ declare export function useResourceMutation<Data, Vars>(
 
 declare export function useResourceValue<Data>(resource: Resource<Data>): Data;
 
-declare export function experimental_useResourceValue<Data>(
-  resource: Resource<Data>,
-): Data;
+declare export function experimental_useResourceValue<Data>(resource: Resource<Data>): Data;
 
 declare export function experimental_useResourceState<Data>(
   resource: Resource<Data>,

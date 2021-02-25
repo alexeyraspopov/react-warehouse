@@ -168,9 +168,7 @@ let UserSearch = createResource({
     let url = `/api/users?query=${searchString}`;
     let controller = new AbortController();
     let onCancel = () => controller.abort();
-    let request = fetch(url, {
-      signal: controller.signal,
-    }).then(response => response.json());
+    let request = fetch(url, { signal: controller.signal }).then((response) => response.json());
     return [request, onCancel];
   },
   capacity: 1,

@@ -18,8 +18,6 @@ export class ErrorBoundary extends Component {
   }
 
   render() {
-    return this.state.error !== null
-      ? this.props.fallback
-      : this.props.children;
+    return this.state.error !== null ? this.props.fallback : this.props.children;
   }
 }

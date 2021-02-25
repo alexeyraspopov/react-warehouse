@@ -154,28 +154,19 @@ export function experimental_useResourceRetryCallback(resource$) {
 }
 
 export function experimental_useResourcePendingState(resource$) {
-  let pending = useSignalSubscription(
-    () => resource$.isPending(),
-    resource$.pending,
-  );
+  let pending = useSignalSubscription(() => resource$.isPending(), resource$.pending);
   useDebugValue(pending);
   return pending;
 }
 
 export function experimental_useResourceValue(resource$) {
-  let value = useSignalSubscription(
-    () => unwrapResourceValue(resource$),
-    resource$.signal,
-  );
+  let value = useSignalSubscription(() => unwrapResourceValue(resource$), resource$.signal);
   useDebugValue(value);
   return value;
 }
 
 export function experimental_useResourceState(resource$) {
-  let value = useSignalSubscription(
-    () => unwrapResourceValue(resource$),
-    resource$.signal,
-  );
+  let value = useSignalSubscription(() => unwrapResourceValue(resource$), resource$.signal);
   let dispatch = useCallback((data) => resource$.set(data), [resource$]);
   let state = [value, dispatch];
   useDebugValue(state);
@@ -220,9 +211,7 @@ function useLatestRef(data) {
 }
 
 function createCacheKey(Resource, deps) {
-  return deps.length > 0
-    ? deps.map((item) => hashCode(item)).join('/')
-    : hashCode(Resource);
+  return deps.length > 0 ? deps.map((item) => hashCode(item)).join('/') : hashCode(Resource);
 }
 
 function lookupRecord(key, cache, onLookup, onQuery, Resource) {

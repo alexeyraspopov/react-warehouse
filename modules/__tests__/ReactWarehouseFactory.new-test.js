@@ -114,9 +114,7 @@ test('post suspense pending state handling', async () => {
     let isPending = useResourcePendingState(resource$);
     return (
       <ErrorBoundary fallback={<span>failure</span>}>
-        <Suspense
-          fallback={<span>loading…({isPending ? 'pending' : 'resolved'})</span>}
-        >
+        <Suspense fallback={<span>loading…({isPending ? 'pending' : 'resolved'})</span>}>
           <Child resource$={resource$} />
         </Suspense>
       </ErrorBoundary>
@@ -312,10 +310,7 @@ test('latest query retry', async () => {
 
   let cancel = jest.fn();
   let retryCounter = 0;
-  let query = jest.fn(() => [
-    Promise.resolve('result:a:' + retryCounter++),
-    cancel,
-  ]);
+  let query = jest.fn(() => [Promise.resolve('result:a:' + retryCounter++), cancel]);
   let renderer = create(null, { unstable_isConcurrent: true });
   act(() => renderer.update(<Parent query={query} data={['a']} />));
   flushScheduler();
