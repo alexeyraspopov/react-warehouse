@@ -1,8 +1,9 @@
 {
   "name": "react-warehouse",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "React resource loader implementation",
   "license": "MIT",
+  "author": "Alexey Raspopov",
   "repository": "alexeyraspopov/react-warehouse",
   "main": "build/bundle.js",
   "module": "build/module.js",
