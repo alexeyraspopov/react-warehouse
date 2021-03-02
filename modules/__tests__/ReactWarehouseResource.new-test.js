@@ -326,7 +326,55 @@ test('latest query retry', async () => {
   );
 });
 
-// preliminary retry or update during initial or pending query?
+test('preliminary retry or update during initial or pending query', async () => {
+  let retryResourceFn;
+  function Parent({ Resource, data = [] }) {
+    let resource$ = useResource(Resource, data);
+    let retryResource = useResourceRetryCallback(resource$);
+    retryResourceFn = retryResource;
+    return (
+      <ErrorBoundary fallback={<span>failure</span>}>
+        <Suspense fallback={<span>loading…</span>}>
+          <Child resource$={resource$} />
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
+
+  function Child({ resource$ }) {
+    let value = useResourceValue(resource$);
+    let isPending = useResourcePendingState(resource$);
+    return (
+      <Fragment>
+        <span>{isPending ? 'pending' : 'resolved'}</span>
+        <span>{value}</span>
+      </Fragment>
+    );
+  }
+
+  let cancel = jest.fn();
+  let retryCounter = 0;
+  let query = jest.fn(() => [Promise.resolve('result:a:' + retryCounter++), cancel]);
+  let Resource = createResource({ query, capacity: 1 });
+  let renderer = create(null, { unstable_isConcurrent: true });
+  act(() => renderer.update(<Parent Resource={Resource} data={['a']} />));
+  flushScheduler();
+  expect(query).toHaveBeenCalled();
+  expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
+  act(() => retryResourceFn());
+  flushScheduler();
+  expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
+  expect(cancel).toHaveBeenCalled();
+  expect(query).toHaveBeenCalledTimes(2);
+  await act(() => flushPromise());
+  flushScheduler();
+  expect(renderer).toMatchRenderedOutput(
+    <Fragment>
+      <span>resolved</span>
+      <span>result:a:1</span>
+    </Fragment>,
+  );
+});
 
 test('pulling resolved data from cache', async () => {
   let cancel = jest.fn();

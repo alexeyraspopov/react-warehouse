@@ -251,6 +251,7 @@ function retryRecord(key, cache, onRetry, onQuery) {
     // QUESTION is it possible?
     // wont be possible if controller would hold whole record by itself and reference it
   } else {
+    cleanupRecord(record);
     queryRecord(record, onQuery, onRetry);
     record.pending = true;
     onRetry(record);
@@ -263,10 +264,7 @@ function updateRecordValue(key, cache, onUpdate, data) {
   if (record === null) {
     // QUESTION is it possible?
   } else {
-    if (record.value === EMPTY_VALUE || record.pending) {
-      record.taskId = null;
-      record.cancel();
-    }
+    cleanupRecord(record);
     record.value = data;
     record.updatedAt = Date.now();
     record.pending = false;
