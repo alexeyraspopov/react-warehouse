@@ -82,8 +82,11 @@ export function experimental_useResource(Resource, deps) {
     let subscription = storage.signal.subscribe((record) => {
       if (record.key === ctl.currentKey) {
         if (ctl.value !== EMPTY_VALUE && record.value === EMPTY_VALUE) {
+          // if current resource is resolved and new record is suspensful,
+          // resource keeps existing resolved record until awaited record is resolved
           ctl._isPending = true;
         } else {
+          // otherwise, count refs and update current resource value
           if (ctl.currentRecord !== null) {
             ctl.currentRecord.refs -= 1;
           }
@@ -305,18 +308,19 @@ function createRecordInstance(key) {
 }
 
 function cleanupRecord(record) {
-  if (record.value === EMPTY_VALUE || record.pending) {
+  if (isRecordPending(record)) {
     record.taskId = null;
     record.cancel();
   }
 }
 
+function isRecordPending(record) {
+  return record.value === EMPTY_VALUE || record.pending;
+}
+
 function isRecordStale(Resource, record) {
   return (
-    record.value !== EMPTY_VALUE &&
-    !record.pending &&
-    record.refs < 1 &&
-    Date.now() - record.updatedAt > Resource.maxAge
+    !isRecordPending(record) && record.refs < 1 && Date.now() - record.updatedAt > Resource.maxAge
   );
 }
 
