@@ -56,8 +56,6 @@ test('async rendering of rejected resource', async () => {
   expect(renderer).toMatchRenderedOutput(<span>failure</span>);
 });
 
-test.todo('query cancellation during unmount');
-
 test('query cancellation of pending resource', async () => {
   let cancel = jest.fn();
   let query = jest.fn((v) => [Promise.resolve('result:' + v), cancel]);
@@ -384,11 +382,59 @@ test('pulling resolved data from cache that is not old yet', async () => {
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
 });
 
-test.todo('pulling old data with following query');
+test('pulling old data with following query', async () => {
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
+  let Resource = createResource({ query, maxAge: 200, staleAge: 1000 });
+  let renderer = create(null, { unstable_isConcurrent: true });
+  act(() => renderer.update(<Parent Resource={Resource} data={['a']} />));
+  flushScheduler();
+  expect(query).toHaveBeenCalledWith('a');
+  await act(() => flushPromise());
+  flushScheduler();
+  expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
+  act(() => renderer.update(null));
+  flushScheduler();
+  await new Promise((r) => setTimeout(r, 400));
+  act(() => renderer.update(<Parent Resource={Resource} data={['a']} />));
+  flushScheduler();
+  expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
+  expect(query).toHaveBeenCalledTimes(2);
+});
 
-test.todo('cache refs');
-
-test.todo('cache consistency');
+test('consistent cache usage via refs', async () => {
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
+  let Resource = createResource({ query, maxAge: 1 });
+  let renderer = create(null, { unstable_isConcurrent: true });
+  act(() => {
+    renderer.update(
+      <Fragment>
+        <Parent Resource={Resource} data={['a']} />
+      </Fragment>,
+    );
+  });
+  flushScheduler();
+  expect(query).toHaveBeenCalledWith('a');
+  await act(() => flushPromise());
+  flushScheduler();
+  expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
+  await new Promise((r) => setTimeout(r, 200));
+  act(() => {
+    renderer.update(
+      <Fragment>
+        <Parent Resource={Resource} data={['a']} />
+        <Parent Resource={Resource} data={['a']} />
+      </Fragment>,
+    );
+  });
+  flushScheduler();
+  expect(query).toHaveBeenCalledTimes(1);
+  expect(renderer).toMatchRenderedOutput(
+    <Fragment>
+      <span>result:a</span>
+      <span>result:a</span>
+    </Fragment>,
+  );
+});
 
 test('skipped rendering of singleton resource', async () => {
   let query = jest.fn(() => Promise.resolve('the result'));

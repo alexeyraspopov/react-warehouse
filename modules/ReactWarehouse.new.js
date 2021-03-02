@@ -28,7 +28,12 @@ export function experimental_useResource(Resource, deps) {
     let ctl = {
       signal,
       pending: signal,
-      value: EMPTY_VALUE,
+      get value() {
+        let current = this.currentRecord;
+        return current !== null ? current.value : EMPTY_VALUE;
+      },
+      currentKey: null,
+      currentRecord: null,
       publish() {
         let Resource = ResourceRef.current;
         let deps = depsRef.current;
@@ -64,6 +69,9 @@ export function experimental_useResource(Resource, deps) {
         );
       },
       dispose() {
+        if (ctl.currentRecord !== null) {
+          ctl.currentRecord.refs -= 1;
+        }
         subscription.dispose();
       },
       _isPending: false,
@@ -71,13 +79,16 @@ export function experimental_useResource(Resource, deps) {
         return ctl._isPending;
       },
     };
-    // TODO refs?
     let subscription = storage.signal.subscribe((record) => {
       if (record.key === ctl.currentKey) {
         if (ctl.value !== EMPTY_VALUE && record.value === EMPTY_VALUE) {
           ctl._isPending = true;
         } else {
-          ctl.value = record.value;
+          if (ctl.currentRecord !== null) {
+            ctl.currentRecord.refs -= 1;
+          }
+          record.refs += 1;
+          ctl.currentRecord = record;
           ctl._isPending = record.pending;
         }
 
@@ -89,6 +100,7 @@ export function experimental_useResource(Resource, deps) {
 
   // useMemo is being used as a sync way to react to `deps` changes without revalidating whole controller
   useMemo(() => resource$.publish(deps), deps);
+  // Whatever happens in the resource controller at the time should be cancelled and subscriptions disposed
   useEffect(() => () => resource$.dispose(), [resource$]);
 
   return resource$;
