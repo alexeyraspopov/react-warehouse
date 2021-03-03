@@ -19,6 +19,13 @@ let EMPTY_VALUE = Symbol('EMPTY_VALUE');
 
 let Registry = createContext(new Map());
 
+export function experimental_useResourceSync(Resource, deps) {
+  let resource$ = experimental_useResource(Resource, deps);
+  let value = useSignalSubscription(() => unwrapResourceValue(resource$), resource$.signal);
+  useDebugValue(value);
+  return value;
+}
+
 export function experimental_useResource(Resource, deps) {
   let ResourceRef = useLatestRef(Resource);
   let depsRef = useLatestRef(deps);
