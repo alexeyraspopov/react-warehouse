@@ -61,6 +61,11 @@ export function useResourceSync<Data, Deps>(
   deps: Deps,
 ): Data;
 
+export function experimental_useResourceSync<Data, Deps>(
+  Resource: ResourceCache<Data, Deps, *>,
+  deps: Deps,
+): Data;
+
 export function useResourceMutation<Data, Vars>(
   Resource: ResourceCache<Data, *, Vars>,
   resource: Resource<Data>,
