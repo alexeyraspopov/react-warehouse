@@ -10,8 +10,8 @@ import {
   experimental_useResourceValue as useResourceValue,
 } from '../ReactWarehouse.new';
 
-function Parent({ query, data = [] }) {
-  let resource$ = useResourceFactory(query, data);
+function Parent({ query, deps = [] }) {
+  let resource$ = useResourceFactory(query, deps);
   return (
     <ErrorBoundary fallback={<span>failure</span>}>
       <Suspense fallback={<span>loading…</span>}>
@@ -29,7 +29,7 @@ function Child({ resource$ }) {
 test('async rendering of pending resource', async () => {
   let query = jest.fn(() => Promise.resolve('result:a'));
   let renderer = create(null, { unstable_isConcurrent: true });
-  act(() => renderer.update(<Parent query={query} data={[]} />));
+  act(() => renderer.update(<Parent query={query} deps={[]} />));
   flushScheduler();
   expect(query).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
@@ -43,7 +43,7 @@ test('async rendering of rejected resource', async () => {
   let query = jest.fn(() => Promise.reject(new Error('failure:a')));
   let renderer = create(null, { unstable_isConcurrent: true });
   jest.spyOn(console, 'error').mockImplementation(() => null);
-  act(() => renderer.update(<Parent query={query} data={[]} />));
+  act(() => renderer.update(<Parent query={query} deps={[]} />));
   flushScheduler();
   expect(query).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
@@ -57,7 +57,7 @@ test('query cancellation during unmount', async () => {
   let cancel = jest.fn();
   let query = jest.fn(() => [Promise.resolve('result:a'), cancel]);
   let renderer = create(null, { unstable_isConcurrent: true });
-  act(() => renderer.update(<Parent query={query} data={['a']} />));
+  act(() => renderer.update(<Parent query={query} deps={['a']} />));
   flushScheduler();
   expect(query).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
@@ -72,11 +72,11 @@ test('query cancellation of pending resource', async () => {
   let queryA = jest.fn(() => [Promise.resolve('result:a'), cancel]);
   let queryB = jest.fn(() => [Promise.resolve('result:b'), cancel]);
   let renderer = create(null, { unstable_isConcurrent: true });
-  act(() => renderer.update(<Parent query={queryA} data={['a']} />));
+  act(() => renderer.update(<Parent query={queryA} deps={['a']} />));
   flushScheduler();
   expect(queryA).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  act(() => renderer.update(<Parent query={queryB} data={['b']} />));
+  act(() => renderer.update(<Parent query={queryB} deps={['b']} />));
   flushScheduler();
   expect(queryB).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
@@ -91,14 +91,14 @@ test('subsequent re-rendering of new pending resource', async () => {
   let queryA = jest.fn(() => [Promise.resolve('result:a'), cancel]);
   let queryB = jest.fn(() => [Promise.resolve('result:b'), cancel]);
   let renderer = create(null, { unstable_isConcurrent: true });
-  act(() => renderer.update(<Parent query={queryA} data={['a']} />));
+  act(() => renderer.update(<Parent query={queryA} deps={['a']} />));
   flushScheduler();
   expect(queryA).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
   await act(() => flushPromise());
   flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
-  act(() => renderer.update(<Parent query={queryB} data={['b']} />));
+  act(() => renderer.update(<Parent query={queryB} deps={['b']} />));
   flushScheduler();
   expect(queryB).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
@@ -109,8 +109,8 @@ test('subsequent re-rendering of new pending resource', async () => {
 });
 
 test('post suspense pending state handling', async () => {
-  function Parent({ query, data = [] }) {
-    let resource$ = useResourceFactory(query, data);
+  function Parent({ query, deps = [] }) {
+    let resource$ = useResourceFactory(query, deps);
     let isPending = useResourcePendingState(resource$);
     return (
       <ErrorBoundary fallback={<span>failure</span>}>
@@ -136,7 +136,7 @@ test('post suspense pending state handling', async () => {
   let queryA = jest.fn(() => [Promise.resolve('result:a'), cancel]);
   let queryB = jest.fn(() => [Promise.resolve('result:b'), cancel]);
   let renderer = create(null, { unstable_isConcurrent: true });
-  act(() => renderer.update(<Parent query={queryA} data={['a']} />));
+  act(() => renderer.update(<Parent query={queryA} deps={['a']} />));
   flushScheduler();
   expect(queryA).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…(resolved)</span>);
@@ -148,7 +148,7 @@ test('post suspense pending state handling', async () => {
       <span>result:a</span>
     </Fragment>,
   );
-  act(() => renderer.update(<Parent query={queryB} data={['b']} />));
+  act(() => renderer.update(<Parent query={queryB} deps={['b']} />));
   flushScheduler();
   expect(queryB).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(
@@ -176,18 +176,18 @@ test('subsequent cancellation of pending resource', async () => {
   let queryB = jest.fn(() => [Promise.resolve('result:b'), cancelB]);
   let queryC = jest.fn(() => [Promise.resolve('result:c'), cancelC]);
   let renderer = create(null, { unstable_isConcurrent: true });
-  act(() => renderer.update(<Parent query={queryA} data={['a']} />));
+  act(() => renderer.update(<Parent query={queryA} deps={['a']} />));
   flushScheduler();
   expect(queryA).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
   await act(() => flushPromise());
   flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
-  act(() => renderer.update(<Parent query={queryB} data={['b']} />));
+  act(() => renderer.update(<Parent query={queryB} deps={['b']} />));
   flushScheduler();
   expect(queryB).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
-  act(() => renderer.update(<Parent query={queryC} data={['c']} />));
+  act(() => renderer.update(<Parent query={queryC} deps={['c']} />));
   flushScheduler();
   expect(queryC).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
@@ -215,14 +215,14 @@ test('subsequent re-rendering of new pending resource during suspense', async ()
   let queryB = jest.fn(() => [promiseB, cancelB]);
 
   let renderer = create(null, { unstable_isConcurrent: true });
-  act(() => renderer.update(<Parent query={queryA} data={['a']} />));
+  act(() => renderer.update(<Parent query={queryA} deps={['a']} />));
   flushScheduler();
   expect(queryA).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
   await act(() => flushPromise());
   flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
-  act(() => renderer.update(<Parent query={queryB} data={['b']} />));
+  act(() => renderer.update(<Parent query={queryB} deps={['b']} />));
   flushScheduler();
   expect(queryB).toHaveBeenCalled();
   expect(cancelA).toHaveBeenCalled();
@@ -240,8 +240,8 @@ test('subsequent re-rendering of new pending resource during suspense', async ()
 
 test('sync value update via setter', async () => {
   let setValueFn;
-  function Parent({ query, data = [] }) {
-    let resource$ = useResourceFactory(query, data);
+  function Parent({ query, deps = [] }) {
+    let resource$ = useResourceFactory(query, deps);
     return (
       <ErrorBoundary fallback={<span>failure</span>}>
         <Suspense fallback={<span>loading…</span>}>
@@ -262,7 +262,7 @@ test('sync value update via setter', async () => {
   let queryA = jest.fn(() => [Promise.resolve('result:a'), cancelA]);
   let queryB = jest.fn(() => [Promise.resolve('result:b'), cancelB]);
   let renderer = create(null, { unstable_isConcurrent: true });
-  act(() => renderer.update(<Parent query={queryA} data={['a']} />));
+  act(() => renderer.update(<Parent query={queryA} deps={['a']} />));
   flushScheduler();
   expect(queryA).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
@@ -272,7 +272,7 @@ test('sync value update via setter', async () => {
   act(() => setValueFn('result:set'));
   flushScheduler();
   expect(renderer).toMatchRenderedOutput(<span>result:set</span>);
-  act(() => renderer.update(<Parent query={queryB} data={['b']} />));
+  act(() => renderer.update(<Parent query={queryB} deps={['b']} />));
   flushScheduler();
   expect(queryB).toHaveBeenCalled();
   expect(cancelA).not.toHaveBeenCalled();
@@ -284,8 +284,8 @@ test('sync value update via setter', async () => {
 
 test('latest query retry', async () => {
   let retryResourceFn;
-  function Parent({ query, data = [] }) {
-    let resource$ = useResourceFactory(query, data);
+  function Parent({ query, deps = [] }) {
+    let resource$ = useResourceFactory(query, deps);
     let retryResource = useResourceRetryCallback(resource$);
     retryResourceFn = retryResource;
     return (
@@ -312,7 +312,7 @@ test('latest query retry', async () => {
   let retryCounter = 0;
   let query = jest.fn(() => [Promise.resolve('result:a:' + retryCounter++), cancel]);
   let renderer = create(null, { unstable_isConcurrent: true });
-  act(() => renderer.update(<Parent query={query} data={['a']} />));
+  act(() => renderer.update(<Parent query={query} deps={['a']} />));
   flushScheduler();
   expect(query).toHaveBeenCalled();
   expect(renderer).toMatchRenderedOutput(<span>loading…</span>);

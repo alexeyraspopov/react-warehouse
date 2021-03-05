@@ -5,8 +5,8 @@ import { experimental_useResourceSync as useResourceSync } from '../ReactWarehou
 import { ErrorBoundary } from '../ErrorBoundary';
 
 test('immediate resource resolving', async () => {
-  function Component({ Resource, data }) {
-    let value = useResourceSync(Resource, data);
+  function Component({ Resource, deps }) {
+    let value = useResourceSync(Resource, deps);
     return <span>{value}</span>;
   }
   let query = jest.fn((data) => Promise.resolve('result:' + data));
@@ -15,7 +15,7 @@ test('immediate resource resolving', async () => {
   act(() => {
     renderer.update(
       <Suspense fallback={<span>loading…</span>}>
-        <Component Resource={Resource} data={['a']} />
+        <Component Resource={Resource} deps={['a']} />
       </Suspense>,
     );
   });
@@ -29,8 +29,8 @@ test('immediate resource resolving', async () => {
 });
 
 test('immediate resource rejection', async () => {
-  function Component({ Resource, data }) {
-    let value = useResourceSync(Resource, data);
+  function Component({ Resource, deps }) {
+    let value = useResourceSync(Resource, deps);
     return <span>{value}</span>;
   }
   let query = jest.fn((data) => Promise.reject(new Error('failure:' + data)));
@@ -41,7 +41,7 @@ test('immediate resource rejection', async () => {
     renderer.update(
       <ErrorBoundary fallback={<span>failure</span>}>
         <Suspense fallback={<span>loading…</span>}>
-          <Component Resource={Resource} data={['a']} />
+          <Component Resource={Resource} deps={['a']} />
         </Suspense>
       </ErrorBoundary>,
     );
