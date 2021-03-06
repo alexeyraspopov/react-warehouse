@@ -33,7 +33,7 @@ test('immediate resource rejection', async () => {
     let value = useResourceSync(Resource, deps);
     return <span>{value}</span>;
   }
-  let query = jest.fn((data) => Promise.reject('failure:' + data));
+  let query = jest.fn((data) => Promise.reject(new Error('failure:' + data)));
   let Resource = createResource({ query });
   let renderer = create(null, { unstable_isConcurrent: true });
   jest.spyOn(console, 'error').mockImplementation(() => null);

@@ -43,7 +43,7 @@ test('async rendering of pending resource', async () => {
 });
 
 test('async rendering of rejected resource', async () => {
-  let query = jest.fn((data) => Promise.reject('failure:' + data));
+  let query = jest.fn((data) => Promise.reject(new Error('failure:' + data)));
   let renderer = create(null, { unstable_isConcurrent: true });
   jest.spyOn(console, 'error').mockImplementation(() => null);
   act(() => {
