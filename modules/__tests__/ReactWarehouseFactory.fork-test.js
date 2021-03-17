@@ -1,0 +1,109 @@
+import React, { Suspense, Fragment } from 'react';
+import * as Scheduler from 'scheduler';
+import { create, act } from 'react-test-renderer';
+import {
+  experimental_useResourceFactory as useResourceFactory,
+  experimental_useResourceValue as useResourceValue,
+} from '../ReactWarehouse.new';
+import { ErrorBoundary } from '../ErrorBoundary';
+
+function Parent({ factory, data }) {
+  let resource = useResourceFactory(() => factory(data), [factory, data]);
+  return (
+    <ErrorBoundary fallback={<span>failure</span>}>
+      <Suspense fallback={<span>loading…</span>}>
+        <Child resource={resource} />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function Child({ resource }) {
+  let value = useResourceValue(resource);
+  return <span>{value}</span>;
+}
+
+test.skip('sync rendering of resolved resource', () => {
+  let query = jest.fn((data) => 'result:' + data);
+  let renderer = create(<Parent factory={query} data="a" />);
+  expect(query).toHaveBeenCalledWith('a');
+  expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
+});
+
+test('async rendering of pending resource', async () => {
+  let query = jest.fn((data) => Promise.resolve('result:' + data));
+  let renderer = create(null, { unstable_isConcurrent: true });
+  act(() => {
+    renderer.update(<Parent factory={query} data="a" />);
+  });
+  flushScheduler();
+  expect(query).toHaveBeenCalledWith('a');
+  expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
+  await act(() => flushPromise());
+  flushScheduler();
+  expect(query).toHaveBeenCalledTimes(1);
+  expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
+});
+
+test('async rendering of rejected resource', async () => {
+  let query = jest.fn((data) => Promise.reject(new Error('failure:' + data)));
+  let renderer = create(null, { unstable_isConcurrent: true });
+  jest.spyOn(console, 'error').mockImplementation(() => null);
+  act(() => {
+    renderer.update(<Parent factory={query} data="a" />);
+  });
+  flushScheduler();
+  expect(query).toHaveBeenCalledWith('a');
+  expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
+  await act(() => flushPromise());
+  flushScheduler();
+  expect(query).toHaveBeenCalledTimes(1);
+  expect(renderer).toMatchRenderedOutput(<span>failure</span>);
+});
+
+test('query cancellation of pending resource', async () => {
+  let cancel = jest.fn();
+  let query = jest.fn((data) => [Promise.resolve('result:' + data), cancel]);
+  let renderer = create(null, { unstable_isConcurrent: true });
+  act(() => {
+    renderer.update(<Parent factory={query} data="a" />);
+  });
+  flushScheduler();
+  expect(query).toHaveBeenCalledWith('a');
+  expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
+  act(() => {
+    renderer.update(<Parent factory={query} data="b" />);
+  });
+  flushScheduler();
+  expect(query).toHaveBeenCalledWith('b');
+  expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
+  await act(() => flushPromise());
+  flushScheduler();
+  expect(cancel).toHaveBeenCalledTimes(1);
+  expect(renderer).toMatchRenderedOutput(<span>result:b</span>);
+});
+
+test.skip('subsequent re-rendering of new pending resource', async () => {
+  let cancel = jest.fn();
+  let query = jest.fn((data) => [Promise.resolve('result:' + data), cancel]);
+  let renderer = create(null, { unstable_isConcurrent: true });
+  act(() => {
+    renderer.update(<Parent factory={query} data="a" />);
+  });
+  flushScheduler();
+  expect(query).toHaveBeenCalledWith('a');
+  expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
+  await act(() => flushPromise());
+  flushScheduler();
+  expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
+  act(() => {
+    renderer.update(<Parent factory={query} data="b" />);
+  });
+  flushScheduler();
+  expect(query).toHaveBeenCalledWith('b');
+  expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
+  await act(() => flushPromise());
+  flushScheduler();
+  expect(cancel).not.toHaveBeenCalled();
+  expect(renderer).toMatchRenderedOutput(<span>result:b</span>);
+});
