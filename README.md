@@ -253,7 +253,7 @@ specific result type can be specified instead.
 
 ```javascript
 import { createResource } from 'react-warehouse';
-// type ResourceQuery<Data> = Data | Promise<Data> | [Promise<Data>, () => void]
+// type ResourceQuery<Data> = Promise<Data> | [Promise<Data>, () => void]
 import type { ResourceQuery } from 'react-warehouse';
 
 type User = { id: string, fullName: string };
