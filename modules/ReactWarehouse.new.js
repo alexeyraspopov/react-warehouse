@@ -60,7 +60,7 @@ export function experimental_useResource(Resource, deps) {
           storage.cache,
           (record) => storage.signal.publish(record),
           // TODO make use of Resource.mutate()
-          data,
+          Resource.mutate ? Resource.mutate(data) : data,
         );
       },
       retry() {
@@ -275,9 +275,26 @@ function updateRecordValue(key, cache, onUpdate, data) {
     // QUESTION is it possible?
   } else {
     cleanupRecord(record);
-    record.value = data;
-    record.updatedAt = Date.now();
-    record.pending = false;
+    if (data instanceof Promise) {
+      let taskId = Math.random();
+      let update = (result) => {
+        if (record.taskId === taskId) {
+          record.value = result;
+          record.updatedAt = Date.now();
+          record.pending = false;
+          onUpdate(record);
+        }
+      };
+      data.then(update).catch(update);
+
+      record.taskId = taskId;
+      record.cancel = noop;
+      record.pending = true;
+    } else {
+      record.value = data;
+      record.updatedAt = Date.now();
+      record.pending = false;
+    }
   }
 
   onUpdate(record);
