@@ -1,3 +1,7 @@
+## `react-warehouse@0.5.2`
+
+- Reverted recent typings changes due to unexpected backward incompatibility ()
+
 ## `react-warehouse@0.5.1`
 
 - Ensure resource unwrapping being handled during render stage, instead of passive effect (https://github.com/alexeyraspopov/react-warehouse/commit/ca3eb78f744625b360c51f235e0cd8dbcdebc2b4)
