@@ -56,6 +56,27 @@ test('async rendering of rejected resource', async () => {
   expect(renderer).toMatchRenderedOutput(<span>failure</span>);
 });
 
+test('transition from resolved to rejected', async () => {
+  let query = jest.fn(() => Promise.resolve('result:a'));
+  let Resource = createResource({ query });
+  let renderer = create(null, { unstable_isConcurrent: true });
+  act(() => renderer.update(<Parent Resource={Resource} deps={['a']} />));
+  flushScheduler();
+  expect(query).toHaveBeenCalledWith('a');
+  expect(renderer).toMatchRenderedOutput(<span>loading…</span>);
+  await act(() => flushPromise());
+  flushScheduler();
+  expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
+  query.mockImplementation(() => Promise.reject(new Error('failure:b')));
+  act(() => renderer.update(<Parent Resource={Resource} deps={['b']} />));
+  flushScheduler();
+  expect(query).toHaveBeenCalledWith('b');
+  expect(renderer).toMatchRenderedOutput(<span>result:a</span>);
+  await act(() => flushPromise());
+  flushScheduler();
+  expect(renderer).toMatchRenderedOutput(<span>failure</span>);
+});
+
 test('query cancellation of pending resource', async () => {
   let cancel = jest.fn();
   let query = jest.fn((v) => [Promise.resolve('result:' + v), cancel]);

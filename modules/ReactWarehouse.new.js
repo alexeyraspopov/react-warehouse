@@ -21,7 +21,8 @@ let Registry = createContext(new Map());
 
 export function experimental_useResourceSync(Resource, deps) {
   let resource$ = experimental_useResource(Resource, deps);
-  let value = useSignalSubscription(() => unwrapResourceValue(resource$), resource$.signal);
+  let latest = useSignalSubscription(() => resource$.value, resource$.signal);
+  let value = unwrapResourceValue(latest, resource$.signal);
   useDebugValue(value);
   return value;
 }
@@ -182,13 +183,15 @@ export function experimental_useResourcePendingState(resource$) {
 }
 
 export function experimental_useResourceValue(resource$) {
-  let value = useSignalSubscription(() => unwrapResourceValue(resource$), resource$.signal);
+  let latest = useSignalSubscription(() => resource$.value, resource$.signal);
+  let value = unwrapResourceValue(latest, resource$.signal);
   useDebugValue(value);
   return value;
 }
 
 export function experimental_useResourceState(resource$) {
-  let value = useSignalSubscription(() => unwrapResourceValue(resource$), resource$.signal);
+  let latest = useSignalSubscription(() => resource$.value, resource$.signal);
+  let value = unwrapResourceValue(latest, resource$.signal);
   let dispatch = useCallback((data) => resource$.set(data), [resource$]);
   let state = [value, dispatch];
   useDebugValue(state);
@@ -209,21 +212,21 @@ function useSignalSubscription(getCurrentValue, signal) {
   return value;
 }
 
-function unwrapResourceValue(resource$) {
-  if (resource$.value === EMPTY_VALUE) {
+function unwrapResourceValue(value, signal) {
+  if (value === EMPTY_VALUE) {
     throw new Promise((resolve) => {
-      let subscription = resource$.signal.subscribe(() => {
+      let subscription = signal.subscribe(() => {
         subscription.dispose();
         resolve();
       });
     });
   }
 
-  if (resource$.value instanceof Error) {
-    throw resource$.value;
+  if (value instanceof Error) {
+    throw value;
   }
 
-  return resource$.value;
+  return value;
 }
 
 function useLatestRef(data) {
