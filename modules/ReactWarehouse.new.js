@@ -75,6 +75,15 @@ export function experimental_useResource(Resource, deps) {
           (record) => storage.signal.publish(record),
           () => Resource.query(...deps),
         );
+        return new Promise((resolve) => {
+          let subscription = storage.signal.subscribe((record) => {
+            // QUESTION can this create a zombie subscription?
+            if (record.key === key) {
+              subscription.dispose();
+              resolve();
+            }
+          });
+        });
       },
       dispose() {
         if (ctl.currentRecord !== null) {
@@ -135,7 +144,13 @@ export function experimental_useResourceFactory(query, deps) {
         pending.publish();
       },
       retry() {
-        ctl.publish();
+        return new Promise((resolve) => {
+          ctl.publish();
+          let subscription = signal.subscribe(() => {
+            subscription.dispose();
+            resolve();
+          });
+        });
       },
       dispose() {
         signal.current.cancel();
