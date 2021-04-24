@@ -69,21 +69,12 @@ export function experimental_useResource(Resource, deps) {
         let deps = depsRef.current;
         let key = createCacheKey(Resource, deps);
         ctl.currentKey = key;
-        retryRecord(
+        return retryRecord(
           key,
           storage.cache,
           (record) => storage.signal.publish(record),
           () => Resource.query(...deps),
         );
-        return new Promise((resolve) => {
-          let subscription = storage.signal.subscribe((record) => {
-            // QUESTION can this create a zombie subscription?
-            if (record.key === key) {
-              subscription.dispose();
-              resolve();
-            }
-          });
-        });
       },
       dispose() {
         if (ctl.currentRecord !== null) {
@@ -280,9 +271,10 @@ function retryRecord(key, cache, onRetry, onQuery) {
     // wont be possible if controller would hold whole record by itself and reference it
   } else {
     cleanupRecord(record);
-    queryRecord(record, onQuery, onRetry);
+    let promise = queryRecord(record, onQuery, onRetry);
     record.pending = true;
     onRetry(record);
+    return promise;
   }
 }
 
@@ -331,10 +323,10 @@ function queryRecord(record, onQuery, onUpdate) {
   let result = onQuery();
   let [promise, onCancel] = Array.isArray(result) ? result : [result, noop];
 
-  promise.then(update).catch(update);
-
   record.taskId = taskId;
   record.cancel = onCancel;
+
+  return promise.then(update).catch(update);
 }
 
 function createRecordInstance(key) {
