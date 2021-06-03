@@ -39,7 +39,7 @@ will not attempt making new requests while the page keeps reference to the data.
 In order to prevent caches to consume too much memory, they are limited by their
 `capacity`. Records in cache are handled by LRU algorithm. If cache needs to
 delete a record that is still not resolved, it will also attempt to cancel the
-request (see examples below).
+request.
 
 [lru-cache]: https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)
 [ref-counting]: https://en.wikipedia.org/wiki/Reference_counting
