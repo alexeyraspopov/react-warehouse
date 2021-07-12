@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { useSubscription } from 'use-subscription';
 import LRUCache from './LRUCache';
-import hashCode from './hashCode';
+import createCacheKey from './createCacheKey';
 import Signal from './Signal';
 import noop from './noop';
 
@@ -155,10 +155,6 @@ function useResourceLock(resource) {
       resource.refs -= 1;
     };
   }, [resource]);
-}
-
-function createCacheKey(Resource, deps) {
-  return deps.length > 0 ? deps.map((item) => hashCode(item)).join('/') : hashCode(Resource);
 }
 
 function isResourceStale(Resource, resource) {

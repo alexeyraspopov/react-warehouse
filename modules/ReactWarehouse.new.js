@@ -11,7 +11,7 @@ import {
 import { useSubscription } from 'use-subscription';
 import Signal from './Signal.new';
 import AsyncSignal from './AsyncSignal.new';
-import hashCode from './hashCode';
+import createCacheKey from './createCacheKey';
 import LRUCache from './LRUCache';
 import noop from './noop';
 
@@ -239,10 +239,6 @@ function useLatestRef(data) {
   let ref = useRef();
   ref.current = data;
   return ref;
-}
-
-function createCacheKey(Resource, deps) {
-  return deps.length > 0 ? deps.map((item) => hashCode(item)).join('/') : hashCode(Resource);
 }
 
 function lookupRecord(key, cache, onLookup, onQuery, Resource) {
